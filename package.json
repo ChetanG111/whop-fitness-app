@@ -3,13 +3,14 @@
 	"version": "0.2.0",
 	"private": true,
 	"scripts": {
-		"dev": "whop-proxy --command 'next dev --turbopack'",
+		"dev": "whop-proxy --command=\"next dev --turbopack\"",
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome lint"
 	},
 	"dependencies": {
 		"@vercel/functions": "^3.1.4",
+		"@whop-apps/sdk": "^0.0.1-canary.117",
 		"@whop/react": "0.3.0",
 		"@whop/sdk": "0.0.3",
 		"next": "16.0.0",
