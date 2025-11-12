@@ -35,7 +35,48 @@ export async function getWhopUser(userId: string, resourceId?: string) {
 		let access_level = null;
 		if (resourceId) {
 			const access: any = await whopsdk.users.checkAccess(resourceId, { id: userId });
-			access_level = access?.access_level || access?.level || access?.access || null;
+			// Debug: log the raw access response so we can diagnose missing access_level values
+			console.debug("whop: checkAccess response for", resourceId, "userId", userId, ":", access);
+
+			// Robust extractor: handle several possible shapes returned by the SDK or API.
+			function resolveAccessLevel(a: any): string | null {
+				if (a == null) return null;
+				// Common flattened fields
+				if (typeof a === 'string' && a) return a;
+				if (typeof a === 'object') {
+					const candidates = [
+						a.access_level,
+						a.accessLevel,
+						a.level,
+						a.access,
+						a.permission,
+						a.role,
+						// nested common shapes
+						(a.data && a.data.access_level),
+						(a.data && a.data.level),
+						(a.result && a.result.access_level),
+						(a.attributes && a.attributes.access_level),
+					];
+					for (const c of candidates) {
+						if (typeof c === 'string' && c) return c;
+					}
+					// If boolean, convert to a readable flag
+					if (typeof a === 'boolean') return a ? 'granted' : 'none';
+					// If array, try to resolve first element
+					if (Array.isArray(a) && a.length) {
+						const first = a[0];
+						if (typeof first === 'string') return first;
+						if (typeof first === 'object') return resolveAccessLevel(first);
+					}
+					// fallback: look for any string value on the object
+					for (const v of Object.values(a)) {
+						if (typeof v === 'string' && v) return v;
+					}
+				}
+				return null;
+			}
+
+			access_level = resolveAccessLevel(access) || null;
 		}
 
 		return { id, username, access_level, profile_picture };

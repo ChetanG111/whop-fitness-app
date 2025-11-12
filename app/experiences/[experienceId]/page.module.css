@@ -1,0 +1,66 @@
+.main {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #000000;
+    font-family: sans-serif;
+}
+
+.card {
+    width: 400px;
+    padding: 40px;
+    border-radius: 8px;
+    background: #0d0d0d;
+    text-align: center;
+}
+
+.title {
+    margin: 0 0 12px;
+    font-size: 24px;
+    color: #ffffff;
+}
+
+.subtitle {
+    margin: 0 0 32px;
+    color: #a0a0a0;
+    font-size: 16px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 20px;
+    text-align: left;
+}
+
+.label {
+    font-size: 14px;
+    color: #a0a0a0;
+    margin-bottom: 8px;
+}
+
+.input {
+    padding: 12px 16px;
+    border-radius: 4px;
+    background: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #333333;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.buttonContainer {
+    margin-top: 40px;
+}
+
+.button {
+    background: #00bcd4 !important; /* Using !important to override library styles if necessary */
+    color: #0d0d0d !important;
+    width: 100%;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
