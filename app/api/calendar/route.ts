@@ -18,14 +18,14 @@ export async function GET(request: NextRequest) {
     if (process.env.NODE_ENV === 'development') {
       whopUserId = request.headers.get('X-Test-User-Id');
     } else {
-      const token = request.headers.get('x-whop-user-token');
-      if (token) {
+      const userId = request.headers.get('x-whop-user-id');
+      if (userId) {
         try {
-          const { userId } = await whopsdk.users.verify({ token });
+          await whopsdk.users.retrieve(userId);
           whopUserId = userId;
         } catch (error) {
-          console.error('Error verifying Whop token:', error);
-          return NextResponse.json({ message: 'Invalid Whop token' }, { status: 401 });
+          console.error('Error verifying Whop user:', error);
+          return NextResponse.json({ message: 'Invalid Whop user' }, { status: 401 });
         }
       }
     }
