@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getUserByWhopId, calculateStreak, checkPhotoCompliance, getTodayStats, updateTodayStats } from '@/lib/db-helpers';
+import { getUserByWhopId, calculateStreak, checkPhotoCompliance, getTodayStats, updateTodayStats, getTodayCheckin } from '@/lib/db-helpers';
 import { whopsdk } from '@/lib/whop-sdk';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
