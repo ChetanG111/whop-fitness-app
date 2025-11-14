@@ -1,0 +1,275 @@
+{
+  "designSystem": {
+    "metadata": {
+      "name": "Fitness App Design System",
+      "version": "1.1",
+      "purpose": "Systematic design guidelines for replicating fitness/wellness app UI with integrated micro-animations"
+    },
+
+    "colorPalette": {
+      "background": {
+        "primary": "#0F1419"
+      },
+      "cards": {
+        "background": "#1A2332"
+      },
+      "accent": {
+        "primary": "#3DD9D9"
+      },
+      "heatmap": {
+        "high": "#3DD9D9",
+        "medium": "#E57373",
+        "low": "#D4C5B0",
+        "empty": "#1A2332"
+      },
+      "text": {
+        "primary": "#FFFFFF",
+        "secondary": "#9CA3AF"
+      }
+    },
+
+    "typography": {
+      "pageTitle": {
+        "fontSize": "32px",
+        "fontWeight": "700",
+        "color": "#FFFFFF",
+        "textAlign": "center",
+        "examples": ["Public Feed", "Your Activity"]
+      },
+      "cardTitle": {
+        "fontSize": "24px",
+        "fontWeight": "700",
+        "color": "#FFFFFF"
+      },
+      "cardDescription": {
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "color": "#9CA3AF",
+        "lineHeight": "1.5"
+      },
+      "sectionLabel": {
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "color": "#9CA3AF"
+      }
+    },
+
+    "layout": {
+      "container": {
+        "padding": "24px 20px",
+        "backgroundColor": "#0F1419"
+      },
+      "cardList": {
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "16px",
+        "marginTop": "24px"
+      }
+    },
+
+    "components": {
+      "activityCard": {
+        "structure": {
+          "display": "flex",
+          "flexDirection": "row",
+          "alignItems": "center",
+          "gap": "16px",
+          "padding": "20px",
+          "borderRadius": "16px",
+          "backgroundColor": "#1A2332"
+        },
+        "thumbnail": {
+          "width": "120px",
+          "height": "120px",
+          "borderRadius": "12px",
+          "objectFit": "cover"
+        },
+        "content": {
+          "flex": "1",
+          "display": "flex",
+          "flexDirection": "column",
+          "gap": "8px"
+        },
+        "shadow": "0 4px 12px rgba(0, 0, 0, 0.3)"
+      },
+
+      "heatmapGrid": {
+        "structure": {
+          "display": "grid",
+          "gridTemplateColumns": "repeat(7, 1fr)",
+          "gap": "8px",
+          "padding": "24px 0",
+          "marginBottom": "24px"
+        },
+        "cell": {
+          "width": "32px",
+          "height": "32px",
+          "borderRadius": "6px",
+          "aspectRatio": "1:1"
+        },
+        "colorMapping": {
+          "noActivity": "#1A2332",
+          "lowActivity": "#D4C5B0",
+          "mediumActivity": "#E57373",
+          "highActivity": "#3DD9D9"
+        },
+        "label": "This Month",
+        "interaction": {
+          "tapFeedback": {
+            "scale": "0.95",
+            "duration": "120ms",
+            "shadowOnTap": "0 0 6px rgba(255,255,255,0.1)"
+          }
+        }
+      },
+
+      "bottomNavigation": {
+        "structure": {
+          "position": "fixed",
+          "bottom": "0",
+          "left": "0",
+          "right": "0",
+          "display": "flex",
+          "justifyContent": "space-between",
+          "alignItems": "center",
+          "padding": "16px 24px 24px",
+          "backgroundColor": "#0F1419"
+        },
+        "layout": {
+          "leftIcon": {
+            "icon": "user-profile",
+            "styling": {
+              "width": "24px",
+              "height": "24px",
+              "color": "#9CA3AF"
+            }
+          },
+          "centerPillContainer": {
+            "structure": {
+              "display": "flex",
+              "flexDirection": "row",
+              "gap": "0",
+              "backgroundColor": "#1A2332",
+              "borderRadius": "28px",
+              "padding": "4px",
+              "border": "1px solid rgba(255,255,255,0.1)"
+            },
+            "tabs": [
+              {
+                "text": "Feed",
+                "state": "inactive",
+                "styling": {
+                  "fontSize": "16px",
+                  "fontWeight": "500",
+                  "color": "#9CA3AF",
+                  "padding": "10px 28px",
+                  "borderRadius": "24px",
+                  "backgroundColor": "transparent"
+                }
+              },
+              {
+                "text": "You",
+                "state": "active",
+                "styling": {
+                  "fontSize": "16px",
+                  "fontWeight": "600",
+                  "color": "#0F1419",
+                  "padding": "10px 28px",
+                  "borderRadius": "24px",
+                  "backgroundColor": "#3DD9D9"
+                }
+              }
+            ]
+          },
+          "rightIcon": {
+            "icon": "plus",
+            "styling": {
+              "width": "24px",
+              "height": "24px",
+              "color": "#9CA3AF"
+            }
+          }
+        }
+      }
+    },
+
+    "animations": {
+      "buttonTap": {
+        "description": "Micro-interaction for all buttons and tappable elements",
+        "tapScale": "0.97",
+        "tapDuration": "100ms",
+        "releaseSpring": {
+          "stiffness": 200,
+          "damping": 20
+        },
+        "opacityOnTap": "0.85"
+      },
+
+      "bottomTabSwitch": {
+        "description": "Smooth sliding pill animation for Feed/You switch",
+        "movement": "horizontal_slide",
+        "duration": "180–220ms",
+        "easing": "ease-out",
+        "textFadeDuration": "120ms"
+      },
+
+      "cardEntrance": {
+        "description": "Cards fade upward as they appear",
+        "fade": "0 → 1",
+        "translateY": "8px → 0px",
+        "duration": "180ms",
+        "trigger": "first appearance only"
+      },
+
+      "heatmapTap": {
+        "description": "Heatmap cell tap feedback",
+        "scale": "0.95",
+        "duration": "100–120ms",
+        "shadow": "0 0 6px rgba(255,255,255,0.1)"
+      },
+
+      "touchFeedbackOpacity": {
+        "description": "Opacity-based iOS-style feedback for all tappable items",
+        "tapOpacity": "0.85",
+        "releaseOpacity": "1.0",
+        "duration": "80–120ms"
+      }
+    },
+
+    "designPrinciples": {
+      "spacing": {
+        "cardGap": "16px",
+        "sectionGap": "24px",
+        "cardPadding": "20px",
+        "containerPadding": "24px 20px"
+      },
+      "borderRadius": {
+        "cards": "16px",
+        "thumbnails": "12px",
+        "buttons": "24px",
+        "heatmapCells": "6px"
+      },
+      "elevation": {
+        "cards": "0 4px 12px rgba(0,0,0,0.3)"
+      }
+    },
+
+    "screenSpecifications": {
+      "publicFeed": {
+        "header": "Public Feed",
+        "components": ["activityCard list"],
+        "bottomNav": {
+          "active": "Feed"
+        }
+      },
+      "yourActivity": {
+        "header": "Your Activity",
+        "components": ["heatmapGrid", "activityCard list"],
+        "heatmapLabel": "This Month",
+        "bottomNav": {
+          "active": "You"
+        }
+      }
+    }
+  }
+}

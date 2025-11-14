@@ -1,66 +1,183 @@
-.main {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    background: #000000;
-    font-family: sans-serif;
+:root {
+  --background-primary: #0F1419;
+  --background-card: #1A2332;
+  --accent-primary: #3DD9D9;
+  --text-primary: #FFFFFF;
+  --text-secondary: #9CA3AF;
+  --heatmap-high: #3DD9D9;
+  --heatmap-medium: #E57373;
+  --heatmap-low: #D4C5B0;
+  --heatmap-empty: #1A2332;
 }
 
-.card {
-    width: 400px;
-    padding: 40px;
-    border-radius: 8px;
-    background: #0d0d0d;
-    text-align: center;
+.container {
+  background-color: var(--background-primary);
+  padding: 24px 20px;
+  min-height: 100vh;
+  color: var(--text-primary);
+  font-family: sans-serif;
 }
 
-.title {
-    margin: 0 0 12px;
-    font-size: 24px;
-    color: #ffffff;
+.pageTitle {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-primary);
+  margin-bottom: 24px;
 }
 
-.subtitle {
-    margin: 0 0 32px;
-    color: #a0a0a0;
-    font-size: 16px;
+.sectionLabel {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
 }
 
-.grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    row-gap: 20px;
-    text-align: left;
+.heatmapContainer {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin-bottom: 32px;
+  -webkit-overflow-scrolling: touch;
 }
 
-.label {
-    font-size: 14px;
-    color: #a0a0a0;
-    margin-bottom: 8px;
+.heatmapContainer :global(.react-calendar-heatmap) {
+  width: 100% !important;
+  height: auto !important;
 }
 
-.input {
-    padding: 12px 16px;
-    border-radius: 4px;
-    background: #1a1a1a;
-    color: #ffffff;
-    border: 1px solid #333333;
-    font-weight: 600;
-    overflow-wrap: anywhere;
+.heatmapContainer :global(.react-calendar-heatmap-month-label) {
+  display: none;
 }
 
-.buttonContainer {
-    margin-top: 40px;
+.heatmapContainer :global(.react-calendar-heatmap text) {
+  fill: var(--text-secondary);
+  font-size: 10px;
 }
 
-.button {
-    background: #00bcd4 !important; /* Using !important to override library styles if necessary */
-    color: #0d0d0d !important;
-    width: 100%;
-    font-weight: bold;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.heatmapContainer :global(.react-calendar-heatmap rect) {
+  rx: 2px;
+  ry: 2px;
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.heatmapCellHigh {
+  fill: var(--heatmap-high);
+}
+
+.heatmapCellMedium {
+  fill: var(--heatmap-medium);
+}
+
+.heatmapCellLow {
+  fill: var(--heatmap-low);
+}
+
+.heatmapCellEmpty {
+  fill: var(--heatmap-empty);
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 13px; /* Reduced from 16px by ~20% */
+  margin-top: 20px; /* Reduced from 24px by ~20% */
+  padding-bottom: 100px; /* Keep this as is to avoid overlap with bottom nav */
+}
+
+.activityCard {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 13px; /* Reduced from 16px by ~20% */
+  padding: 16px; /* Reduced from 20px by 20% */
+  border-radius: 16px;
+  background-color: var(--background-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.thumbnail {
+  width: 96px; /* Reduced from 120px by 20% */
+  height: 96px; /* Reduced from 120px by 20% */
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cardDescription {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.bottomNav {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.centerPillContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  background-color: var(--background-card);
+  border-radius: 28px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.navItem {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 10px 28px;
+  border-radius: 24px;
+  background-color: transparent;
+  transition: color 0.3s ease;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.activePill {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  height: calc(100% - 8px);
+  border-radius: 24px;
+  background-color: var(--accent-primary);
+  z-index: 1;
+}
+
+.navIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--background-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-secondary);
+  cursor: pointer;
 }

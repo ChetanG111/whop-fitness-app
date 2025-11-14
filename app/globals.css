@@ -13,3 +13,20 @@ body {
 	color: var(--foreground);
 	font-family: Arial, Helvetica, sans-serif;
 }
+
+/* React Calendar Heatmap Styles */
+.react-calendar-heatmap .color-empty {
+  fill: #eeeeee;
+}
+
+.react-calendar-heatmap .color-scale-1 {
+  fill: #ffff00; /* Reflection: Yellow */
+}
+
+.react-calendar-heatmap .color-scale-2 {
+  fill: #0000ff; /* Rest: Blue */
+}
+
+.react-calendar-heatmap .color-scale-3 {
+  fill: #008000; /* Workout: Green */
+}
