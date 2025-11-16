@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import styles from './page.module.css';
 
-import Heatmap from '../../components/Heatmap';
-import LogFlow from '../../components/LogFlow';
+import Heatmap from '../../app-components/Heatmap';
+import LogFlow from '../../app-components/LogFlow';
+import ProfileView from '../../app-components/ProfileView';
 
 const YourActivityPage = () => {
   const [activeView, setActiveView] = useState('You');
@@ -14,6 +15,7 @@ const YourActivityPage = () => {
   const feedRef = useRef<HTMLButtonElement>(null);
   const youRef = useRef<HTMLButtonElement>(null);
   const [isLogFlowOpen, setIsLogFlowOpen] = useState(false);
+  const [isProfileViewOpen, setIsProfileViewOpen] = useState(false);
 
 
   useEffect(() => {
@@ -138,9 +140,10 @@ const YourActivityPage = () => {
       </AnimatePresence>
 
       {isLogFlowOpen && <LogFlow onClose={() => setIsLogFlowOpen(false)} />}
+      {isProfileViewOpen && <ProfileView onClose={() => setIsProfileViewOpen(false)} />}
 
       <div className={styles.bottomNav}>
-        <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }}>
+        <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }} onClick={() => setIsProfileViewOpen(true)}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

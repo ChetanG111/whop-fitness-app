@@ -1,0 +1,193 @@
+{
+  "designSystem": {
+    "name": "Fitness App Dark Theme",
+    "version": "1.0",
+    "description": "A minimalist dark-themed fitness application design system with modern UI elements"
+  },
+  "colorPalette": {
+    "background": {
+      "primary": "#0f1419",
+      "description": "Deep navy/dark blue, almost black background"
+    },
+    "elements": {
+      "inputBackground": "#1a2332",
+      "inputBorder": "#374151",
+      "inputBorderStyle": "dotted",
+      "inputText": "#9ca3af",
+      "inputPlaceholder": "#6b7280"
+    },
+    "accent": {
+      "primary": "#4dd4d4",
+      "gradient": "linear-gradient(135deg, #5de4e4 0%, #3bc4c4 100%)",
+      "description": "Cyan/turquoise accent for primary actions"
+    },
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "#9ca3af",
+      "placeholder": "#6b7280"
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "primary": "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif",
+      "description": "System font stack for native feel"
+    },
+    "fontSize": {
+      "input": "18px",
+      "button": "20px",
+      "placeholder": "18px"
+    },
+    "fontWeight": {
+      "normal": 400,
+      "medium": 500,
+      "semibold": 600
+    }
+  },
+  "spacing": {
+    "containerPadding": "48px",
+    "elementGap": "32px",
+    "inputPadding": {
+      "horizontal": "24px",
+      "vertical": "20px"
+    },
+    "buttonPadding": {
+      "horizontal": "80px",
+      "vertical": "20px"
+    }
+  },
+  "borderRadius": {
+    "input": "20px",
+    "button": "40px",
+    "description": "All input fields use consistent 20px radius, buttons use larger 40px for pill shape"
+  },
+  "borders": {
+    "input": {
+      "width": "1.5px",
+      "style": "dotted",
+      "color": "#374151"
+    }
+  },
+  "layout": {
+    "type": "vertical-center",
+    "alignment": "center",
+    "distribution": "flex-center",
+    "description": "All elements centered vertically and horizontally on screen"
+  },
+  "components": {
+    "closeButton": {
+      "position": "top-left",
+      "icon": "X",
+      "size": "32px",
+      "margin": "24px",
+      "color": "#ffffff"
+    },
+    "textInput": {
+      "height": "auto",
+      "minHeight": "64px",
+      "width": "100%",
+      "maxWidth": "590px",
+      "backgroundColor": "#1a2332",
+      "border": "1.5px dotted #374151",
+      "borderRadius": "20px",
+      "padding": "20px 24px",
+      "fontSize": "18px",
+      "fontWeight": 400,
+      "color": "#9ca3af",
+      "placeholderColor": "#6b7280"
+    },
+    "textArea": {
+      "height": "280px",
+      "width": "100%",
+      "maxWidth": "590px",
+      "backgroundColor": "#1a2332",
+      "border": "1.5px dotted #374151",
+      "borderRadius": "20px",
+      "padding": "24px",
+      "fontSize": "18px",
+      "fontWeight": 400,
+      "color": "#9ca3af",
+      "placeholderColor": "#6b7280",
+      "resize": "none"
+    },
+    "submitButton": {
+      "width": "auto",
+      "minWidth": "290px",
+      "height": "auto",
+      "padding": "20px 80px",
+      "background": "linear-gradient(135deg, #5de4e4 0%, #3bc4c4 100%)",
+      "border": "none",
+      "borderRadius": "40px",
+      "fontSize": "20px",
+      "fontWeight": 600,
+      "color": "#0f1419",
+      "textTransform": "capitalize",
+      "boxShadow": "0 8px 24px rgba(77, 212, 212, 0.3)"
+    }
+  },
+  "interactions": {
+    "button": {
+      "hover": {
+        "transform": "scale(1.02)",
+        "boxShadow": "0 12px 32px rgba(77, 212, 212, 0.4)"
+      },
+      "active": {
+        "transform": "scale(0.98)"
+      }
+    },
+    "input": {
+      "focus": {
+        "borderColor": "#4dd4d4",
+        "borderWidth": "2px",
+        "outline": "none"
+      }
+    }
+  },
+  "screenStructure": {
+    "container": {
+      "display": "flex",
+      "flexDirection": "column",
+      "alignItems": "center",
+      "justifyContent": "center",
+      "minHeight": "100vh",
+      "padding": "48px",
+      "backgroundColor": "#0f1419"
+    },
+    "formGroup": {
+      "display": "flex",
+      "flexDirection": "column",
+      "alignItems": "center",
+      "gap": "32px",
+      "width": "100%",
+      "maxWidth": "590px"
+    }
+  },
+  "designPrinciples": [
+    "Dark theme optimized for low-light environments",
+    "High contrast between elements for readability",
+    "Consistent border radius across similar components (20px for inputs)",
+    "Dotted borders for modern, distinctive appearance",
+    "Vertical centering for focused user experience",
+    "Cyan accent color for calls-to-action creating visual hierarchy",
+    "Generous spacing and padding for touch-friendly interface",
+    "Minimalist approach with clean lines and no clutter"
+  ],
+  "modifications": {
+    "applied": [
+      "Goals textarea border radius changed from ~32px to 20px to match name input",
+      "All input borders changed from solid to dotted style",
+      "Elements centered vertically on screen using flexbox centering"
+    ]
+  },
+  "implementationNotes": {
+    "cssFramework": "Can be implemented with plain CSS or Tailwind CSS",
+    "responsiveness": "Mobile-first design, scales well on larger screens",
+    "accessibility": "Ensure sufficient color contrast ratios, add focus states, include proper labels",
+    "recommendations": [
+      "Use CSS custom properties for easy theme switching",
+      "Implement smooth transitions (200-300ms) for interactive states",
+      "Add loading states for submit button",
+      "Consider adding input validation styling",
+      "Test with various screen sizes and orientations"
+    ]
+  }
+}

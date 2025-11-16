@@ -130,7 +130,7 @@
   height: 140px;
   padding: 20px;
   background-color: #0e1317;
-  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border: 1.5px dashed rgba(255, 255, 255, 0.06);
   border-radius: 28px;
   color: rgba(255, 255, 255, 0.92);
   width: 92%;
@@ -141,6 +141,11 @@
 
 .input::placeholder {
   color: rgba(255, 255, 255, 0.46);
+}
+
+.input:focus {
+  outline: none;
+  border-color: #4CA9FF;
 }
 
 .dashedBox {
