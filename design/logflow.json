@@ -1,0 +1,295 @@
+{
+  "meta": {
+    "name": "Log Day - Visual Profile",
+    "version": "1.0",
+    "author": "generated-by-chatgpt",
+    "notes": "Profile extracted from provided mockups. Use tokens to map into CSS/React Native/Flutter styles. Follow 'changes' to enforce design consistency."
+  },
+
+  "style_tokens": {
+    "palette": {
+      "bg": "#0f1620",
+      "surface": "#11151a",
+      "card": "#12161b",
+      "mutedCard": "#0e1317",
+      "primaryAccent": "#22d2cf",
+      "textPrimary": "rgba(255,255,255,0.92)",
+      "textSecondary": "rgba(255,255,255,0.46)",
+      "stroke": "rgba(255,255,255,0.06)",
+      "dashStroke": "rgba(255,255,255,0.08)",
+      "shadow": "rgba(6,10,17,0.6)"
+    },
+    "typography": {
+      "fontFamily": "Inter, system-ui, -apple-system, 'SF Pro Text', Roboto, 'Segoe UI', 'Helvetica Neue', Arial",
+      "weights": {
+        "regular": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700
+      },
+      "sizes": {
+        "h1": 20,
+        "h2": 18,
+        "button": 18,
+        "body": 15,
+        "small": 13,
+        "dot": 10
+      },
+      "letterSpacing": {
+        "button": 0.2
+      }
+    },
+    "spacing": {
+      "scale": [4, 8, 12, 16, 20, 24, 32, 40, 48],
+      "containerHorizontal": 24
+    },
+    "corner_radii": {
+      "base": 28,
+      "pill": 9999,
+      "small": 12
+    },
+    "shadows": {
+      "elevation1": {
+        "x": 0,
+        "y": 8,
+        "blur": 20,
+        "spread": 0,
+        "color": "rgba(6,10,17,0.55)"
+      },
+      "elevationInset": {
+        "x": 0,
+        "y": 6,
+        "blur": 14,
+        "color": "rgba(4,8,12,0.55)",
+        "inset": true
+      }
+    }
+  },
+
+  "component_tokens": {
+    "button": {
+      "height": 64,
+      "paddingX": 36,
+      "fontSize": "button",
+      "fontWeight": "semibold",
+      "background": "card",
+      "border": {
+        "width": 0,
+        "color": "stroke"
+      },
+      "radius": "base",
+      "shadow": "elevation1",
+      "textColor": "textPrimary"
+    },
+    "secondaryButton": {
+      "height": 56,
+      "paddingX": 28,
+      "background": "mutedCard",
+      "border": {
+        "width": 1,
+        "color": "stroke"
+      },
+      "radius": "base",
+      "textColor": "textPrimary"
+    },
+    "fab": {
+      "size": 64,
+      "background": "primaryAccent",
+      "textColor": "#071214",
+      "shadow": "elevation1",
+      "radius": 9999
+    },
+    "input": {
+      "height": 140,
+      "padding": 20,
+      "background": "mutedCard",
+      "border": {
+        "width": 1.5,
+        "color": "stroke"
+      },
+      "radius": "base",
+      "placeholderColor": "textSecondary",
+      "textColor": "textPrimary"
+    },
+    "dashedBox": {
+      "height": 260,
+      "padding": 20,
+      "dash": {
+        "color": "dashStroke",
+        "width": 2,
+        "pattern": [10,10],
+        "radius": "base"
+      },
+      "background": "transparent"
+    },
+    "pageDots": {
+      "diameter": 10,
+      "gap": 12,
+      "active": {
+        "color": "textPrimary",
+        "sizeMultiplier": 1.1
+      },
+      "inactive": {
+        "color": "rgba(255,255,255,0.12)",
+        "sizeMultiplier": 1
+      }
+    },
+    "navArrow": {
+      "diameter": 56,
+      "background": "card",
+      "iconColor": "textPrimary",
+      "shadow": "elevation1",
+      "radius": "pill",
+      "glow": false
+    }
+  },
+
+  "layout": {
+    "viewportPaddingTop": 20,
+    "contentColumn": {
+      "maxWidth": 720,
+      "horizontalPadding": "containerHorizontal"
+    },
+    "verticalRhythm": {
+      "stackGapLarge": 24,
+      "stackGapMedium": 16,
+      "stackGapSmall": 12
+    }
+  },
+
+  "components": {
+    "screen_selection": {
+      "layout": [
+        { "type": "spacer", "heightPercent": 30 },
+        { "type": "stack", "gap": "stackGapLarge", "items": [
+            { "component": "button", "label": "Workout", "widthPct": 92 },
+            { "component": "button", "label": "Rest", "widthPct": 92 },
+            { "component": "button", "label": "Reflect", "widthPct": 92 }
+          ]
+        },
+        { "type": "spacer", "heightPercent": 38 },
+        { "type": "pageDots" }
+      ]
+    },
+    "screen_detail_note": {
+      "layout": [
+        { "type": "stack", "gap": "stackGapLarge", "items": [
+            { "component": "secondaryButton", "label": "Push", "widthPct": 92, "icons": ["chevon-down-right"] },
+            { "component": "input", "placeholder": "Insert note", "widthPct": 92 },
+            { "type": "row", "align": "center", "items": [
+                { "type": "text", "value": "Public Note", "style": "body" },
+                { "type": "spacer" },
+                { "component": "toggle", "width": 48 }
+              ]
+            }
+          ]
+        },
+        { "type": "flexFooter", "items": [
+            { "component": "navArrow", "variant": "left" },
+            { "type": "pageDots" },
+            { "component": "fab", "label": "→" }
+          ]
+        }
+      ]
+    },
+    "screen_photo": {
+      "layout": [
+        { "type": "stack", "gap": "stackGapLarge", "items": [
+            { "component": "dashedBox", "widthPct": 92 },
+            { "type": "row", "align": "center", "items": [
+                { "type": "text", "value": "Public Photo", "style": "body" },
+                { "type": "spacer" },
+                { "component": "toggle", "width": 48 }
+              ]
+            },
+            { "component": "button", "label": "Upload Photo", "widthPct": 92 }
+          ]
+        },
+        { "type": "footer", "items": [
+            { "component": "navArrow", "variant": "left" },
+            { "type": "pageDots" },
+            { "component": "button", "label": "Log", "width": 120, "style": "primaryMini" }
+          ]
+        }
+      ]
+    }
+  },
+
+  "decisions_and_changes_locked": {
+    "consistent_radius": {
+      "rule": "All major surfaced components (buttons, inputs, dashed boxes) use corner radius token 'base' = 28px unless explicitly full pill (9999). No mixing of 12px / 18px / 28px across sibling components."
+    },
+    "dashed_borders": {
+      "rule": "Dash pattern standard = [10,10], stroke = 2px, color = dashStroke, cornerRadius = base. Dash opacity lowered vs stroke to avoid visual noise."
+    },
+    "no_neon_or_glow": {
+      "rule": "No neon glows on navigation arrows. Accent may be used for FAB only. Accent used flat with subtle shadow, not outer neon."
+    },
+    "page_dots": {
+      "rule": "Unified page indicator style: diameter 10px, gap 12px, active color textPrimary (slightly larger), inactive color rgba(255,255,255,0.12). Consistent placement centered at bottom across screens."
+    },
+    "arrow_buttons": {
+      "rule": "Left and right navigation arrows must match in size, elevation, and weight. Right arrow may use accent fill for emphasis, left uses same size but card color fill. Both have same shadow token."
+    }
+  },
+
+  "accessibility": {
+    "contrast_expectations": {
+      "text_on_card": "AA+ for body text aimed where possible. Primary CTA (fab) has min contrast ratio > 4.5:1 against background",
+      "dash_contrast": "Dashed borders are decorative; ensure interactive label text has sufficient contrast"
+    },
+    "touch_targets": {
+      "min": 44,
+      "recommended": 56
+    }
+  },
+
+  "implementation_notes": {
+    "css_mapping_example": {
+      "button": {
+        "height": "64px",
+        "borderRadius": "28px",
+        "backgroundColor": "var(--card)",
+        "boxShadow": "0 8px 20px rgba(6,10,17,0.55)",
+        "fontFamily": "Inter, sans-serif",
+        "fontSize": "18px",
+        "color": "rgba(255,255,255,0.92)"
+      },
+      "dashedBox": {
+        "borderStyle": "dashed",
+        "borderWidth": "2px",
+        "borderColor": "rgba(255,255,255,0.08)",
+        "borderRadius": "28px",
+        "padding": "20px"
+      }
+    },
+    "svg_and_icon_guidelines": "Icons should be single-color glyphs using textPrimary or textSecondary depending on emphasis. Chevron icon stroke 2px, rounded line caps.",
+    "animation_guidelines": {
+      "dot_transition": "fade + translateY(2px) on active change, 160ms ease",
+      "fab_press": "scale(0.96) immediate, 120ms",
+      "no-excess": "Avoid glows, long blurs, or neon-like color bloom."
+    },
+    "responsive_rules": {
+      "narrow": "Reduce button horizontal padding to 20px and height to 56px; radius remains 'base'.",
+      "very-narrow": "Stack layout remains vertical, keep page dots visible, use scrollable container."
+    },
+    "cli_integration_hints": [
+      "Map tokens to --css variables (e.g., --bg, --card, --base-radius).",
+      "When comparing target pixel output, prefer ratio-based spacing (multiples of 4) to preserve rhythm.",
+      "If generating assets, export chevrons as 24px SVG with stroke 2px and rounded caps."
+    ]
+  },
+
+  "do_and_dont": {
+    "do": [
+      "Use consistent corner radius 'base' for all major elements.",
+      "Lower dash contrast so dashed box reads as decorative rather than dominant.",
+      "Keep page dots identical across screens."
+    ],
+    "dont": [
+      "Don't use neon glows on small nav icons.",
+      "Don't mix multiple corner radii for siblings.",
+      "Don't make dashed borders thicker than 2px."
+    ]
+  }
+}

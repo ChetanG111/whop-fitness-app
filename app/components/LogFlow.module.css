@@ -1,0 +1,239 @@
+/* Based on design/logflow.json */
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #0f1620; /* Full page background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: #0f1620;
+  padding: 20px;
+  border-radius: 0; /* No border radius for full page */
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: none; /* No shadow for full page */
+  border: none; /* No border for full page */
+  position: relative; /* For positioning the close button */
+}
+
+.closeButton {
+  position: absolute;
+  top: 20px;
+  left: 20px; /* Changed from right to left */
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 24px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 92%;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.button {
+  height: 64px;
+  padding: 0 36px;
+  font-size: 18px;
+  font-weight: 600;
+  background-color: #12161b;
+  border: 0;
+  border-radius: 28px;
+  box-shadow: 0 8px 20px rgba(6, 10, 17, 0.55);
+  color: rgba(255, 255, 255, 0.92);
+  width: 92%;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.secondaryButton {
+  height: 56px;
+  padding: 0 28px;
+  background-color: #0e1317;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 28px;
+  color: rgba(255, 255, 255, 0.92);
+  width: 92%;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.select {
+  height: 56px;
+  padding: 0 28px;
+  background-color: #0e1317;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 28px;
+  color: rgba(255, 255, 255, 0.92);
+  width: 92%;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 28px center;
+  background-size: 1em;
+}
+
+.fab {
+  width: 64px;
+  height: 64px;
+  background-color: #12161b;
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 20px rgba(6, 10, 17, 0.55);
+  border-radius: 9999px;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.input {
+  height: 140px;
+  padding: 20px;
+  background-color: #0e1317;
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border-radius: 28px;
+  color: rgba(255, 255, 255, 0.92);
+  width: 92%;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  resize: none;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.46);
+}
+
+.dashedBox {
+  height: 260px;
+  padding: 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  background-color: transparent;
+  width: 92%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.46);
+}
+
+.pageDots {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: transparent; /* Inactive dots are hollow */
+  border: 1px solid rgba(255, 255, 255, 0.92); /* All dots same color */
+}
+
+.activeDot {
+  background-color: rgba(255, 255, 255, 0.92); /* Active dot is solid */
+  transform: scale(1.1);
+}
+
+.navArrow {
+  width: 56px;
+  height: 56px;
+  background-color: #12161b;
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 20px rgba(6, 10, 17, 0.55);
+  border-radius: 9999px;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.toggle {
+  width: 48px;
+  height: 28px;
+  background-color: #0e1317;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+  cursor: pointer;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  background-color: rgba(255, 255, 255, 0.46);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.toggleOn::after {
+  background-color: #4ca9ff;
+  transform: translateX(20px);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.primaryMini {
+    height: 56px;
+    padding: 0 28px;
+    font-size: 18px;
+    font-weight: 600;
+    background-color: #4ca9ff;
+    border: 0;
+    border-radius: 28px;
+    color: #071214;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}

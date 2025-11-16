@@ -6,12 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styles from './page.module.css';
 
 import Heatmap from '../../components/Heatmap';
+import LogFlow from '../../components/LogFlow';
 
 const YourActivityPage = () => {
   const [activeView, setActiveView] = useState('You');
   const [pillStyle, setPillStyle] = useState({});
   const feedRef = useRef<HTMLButtonElement>(null);
   const youRef = useRef<HTMLButtonElement>(null);
+  const [isLogFlowOpen, setIsLogFlowOpen] = useState(false);
 
 
   useEffect(() => {
@@ -135,6 +137,8 @@ const YourActivityPage = () => {
         {activeView === 'You' ? renderYouView() : renderFeedView()}
       </AnimatePresence>
 
+      {isLogFlowOpen && <LogFlow onClose={() => setIsLogFlowOpen(false)} />}
+
       <div className={styles.bottomNav}>
         <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -147,7 +151,7 @@ const YourActivityPage = () => {
           <button ref={feedRef} className={styles.navItem} onClick={() => setActiveView('Feed')} style={{ color: activeView === 'Feed' ? '#0F1419' : '#9CA3AF' }}>Feed</button>
           <button ref={youRef} className={styles.navItem} onClick={() => setActiveView('You')} style={{ color: activeView === 'You' ? '#0F1419' : '#9CA3AF' }}>You</button>
         </div>
-        <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }}>
+        <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }} onClick={() => setIsLogFlowOpen(true)}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
