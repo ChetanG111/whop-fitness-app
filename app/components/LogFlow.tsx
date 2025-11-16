@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import styles from './LogFlow.module.css';
 
-const LogFlow = ({ onClose }) => {
+interface LogFlowProps {
+  onClose: () => void;
+}
+
+const LogFlow = ({ onClose }: LogFlowProps) => {
   const [step, setStep] = useState(0);
   const [selection, setSelection] = useState('');
   const [workoutType, setWorkoutType] = useState('');
   const [isPublicNote, setIsPublicNote] = useState(false);
   const [isPublicPhoto, setIsPublicPhoto] = useState(false);
 
-  const handleSelection = (type) => {
+  const handleSelection = (type: string) => {
     setSelection(type);
     setStep(1);
   };
