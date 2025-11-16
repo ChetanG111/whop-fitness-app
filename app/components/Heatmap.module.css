@@ -1,0 +1,95 @@
+/* Rebuilt heatmap: 4-level neon palette; gridInner owns height; month labels inside gridInner; COLUMNS = WEEKS */
+
+:root {
+  /* -- Sizing & Layout -- */
+  --cell-size: clamp(8px, 1.4vw, 14px);
+  --gap: 2px;
+  --padding: 16px;
+  --label-row-height: 20px;
+  --label-gap: 6px; /* Gap between month labels and heatmap cells */
+  --grid-inner-height: calc(
+    (7 * var(--cell-size)) + (6 * var(--gap)) + var(--label-row-height) + var(--label-gap)
+  );
+
+  /* -- Colors (4-Level Neon Palette) -- */
+  --bg-primary: #0f1419; /* A dark background for the container */
+  --text-color: #c9d1d9;
+  --border-color: #30363d;
+  
+  /* Level names from design doc: ghosted-default, workedout-first-neon, rest-2nd-neon, missed-3rd-neon */
+  --level-0: #1A2332;
+  --level-3: #163C5A;
+  --level-2: #1E5FA8;
+  --level-1: #4CA9FF;
+}
+
+.container {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: var(--padding);
+  padding-top: 6px;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  /* Hide scrollbars visually */
+  scrollbar-width: none; /* Firefox */
+}
+
+.container::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+.gridInner {
+  position: relative;
+  height: var(--grid-inner-height);
+  min-width: fit-content;
+}
+
+.monthsContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--label-row-height);
+  display: flex;
+  align-items: flex-end;
+}
+
+.monthLabel {
+  position: absolute;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-color);
+  white-space: nowrap;
+  bottom: 0;
+  /* Optional: background to prevent cell overlap on small screens */
+  background-color: rgba(15, 20, 25, 0.6);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.heatmapGrid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, var(--cell-size));
+  grid-auto-columns: var(--cell-size);
+  gap: var(--gap);
+  
+  /* Position the grid below the labels using padding */
+  padding-top: calc(var(--label-row-height) + var(--label-gap));
+  padding-right: var(--padding);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border-radius: 2px;
+  background-color: var(--level-0, #1A2332); /* Use var with fallback */
+}

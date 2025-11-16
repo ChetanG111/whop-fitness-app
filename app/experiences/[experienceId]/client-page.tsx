@@ -2,17 +2,17 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CalendarHeatmap from 'react-calendar-heatmap';
-import 'react-calendar-heatmap/dist/styles.css';
+
 import styles from './page.module.css';
+
+import Heatmap from '../../components/Heatmap';
 
 const YourActivityPage = () => {
   const [activeView, setActiveView] = useState('You');
   const [pillStyle, setPillStyle] = useState({});
   const feedRef = useRef<HTMLButtonElement>(null);
   const youRef = useRef<HTMLButtonElement>(null);
-  const [heatmapData, setHeatmapData] = useState<any[]>([]);
-  const [transformedHeatmapData, setTransformedHeatmapData] = useState<{ date: string | Date; count: number }[]>([]);
+
 
   useEffect(() => {
     const activeRef = activeView === 'Feed' ? feedRef : youRef;
@@ -24,61 +24,34 @@ const YourActivityPage = () => {
     }
   }, [activeView]);
 
-  useEffect(() => {
-    const fetchHeatmapData = async () => {
-      try {
-        const headers: Record<string, string> = {};
-        if (process.env.NODE_ENV === 'development') {
-          headers['X-Test-User-Id'] = process.env.NEXT_PUBLIC_TEST_USER_ID || 'user_12345';
-        }
-        const res = await fetch('/api/calendar', { headers });
-        const contentType = res.headers.get('content-type') || '';
-        const isJson = contentType.includes('application/json');
-        const payload = isJson ? await res.json() : null;
 
-        if (!res.ok) {
-          console.warn('Calendar API returned non-OK:', res.status, payload);
-          setHeatmapData([]);
-          return;
-        }
 
-        if (Array.isArray(payload)) {
-          console.log('API response for heatmap data:', payload);
-          setHeatmapData(payload);
-        } else {
-          console.warn('Calendar API payload not an array. Using empty array.', payload);
-          setHeatmapData([]);
-        }
-      } catch (error) {
-        console.error('Error fetching heatmap data:', error);
-      }
-    };
 
-    fetchHeatmapData();
-  }, []);
-
-  useEffect(() => {
-    if (Array.isArray(heatmapData)) { // Explicitly check if it's an array
-      const transformedData = heatmapData.map((checkin: any) => ({
-        date: checkin.createdAt,
-        count: 1, // We can use the `getHeatmapClass` to determine the color
-      }));
-      setTransformedHeatmapData(transformedData);
-    } else {
-      console.error('heatmapData is not an array:', heatmapData);
-      setTransformedHeatmapData([]); // Ensure it's always an array
-    }
-  }, [heatmapData]);
 
   const activityData = [
     { id: 1, thumbnail: 'https://dummyimage.com/120x120/3DD9D9/0F1419.png&text=W', title: 'Push Day', description: 'Chest, Shoulders, Triceps' },
     { id: 2, thumbnail: 'https://dummyimage.com/120x120/E57373/0F1419.png&text=R', title: 'Active Recovery', description: 'Light walk and stretching' },
     { id: 3, thumbnail: 'https://dummyimage.com/120x120/D4C5B0/0F1419.png&text=Ref', title: 'Reflection', description: 'Feeling a bit under the weather.' },
+    { id: 4, thumbnail: 'https://dummyimage.com/120x120/87CEEB/0F1419.png&text=C', title: 'Core Blast', description: 'Planks, leg raises, Russian twists' },
+    { id: 5, thumbnail: 'https://dummyimage.com/120x120/98FB98/0F1419.png&text=L', title: 'Leg Day', description: 'Squats, lunges, calf raises' },
+    { id: 6, thumbnail: 'https://dummyimage.com/120x120/FFA07A/0F1419.png&text=HIIT', title: 'HIIT Session', description: '20-min intervals, full-body' },
+    { id: 7, thumbnail: 'https://dummyimage.com/120x120/AFEEEE/0F1419.png&text=Y', title: 'Yoga Flow', description: 'Mobility and breathwork' },
+    { id: 8, thumbnail: 'https://dummyimage.com/120x120/BA55D3/0F1419.png&text=F', title: 'Functional', description: 'Kettlebell swings, box jumps' },
+    { id: 9, thumbnail: 'https://dummyimage.com/120x120/FFD700/0F1419.png&text=C', title: 'Cycling', description: '45-min endurance ride' },
+    { id: 10, thumbnail: 'https://dummyimage.com/120x120/40E0D0/0F1419.png&text=S', title: 'Swim', description: 'Technique and intervals' },
   ];
 
   const publicFeedData = [
     { id: 1, user: 'Jane', thumbnail: 'https://dummyimage.com/120x120/3DD9D9/0F1419.png&text=W', title: 'Pull Day', description: 'Back and Biceps' },
     { id: 2, user: 'John', thumbnail: 'https://dummyimage.com/120x120/D4C5B0/0F1419.png&text=R', title: 'Rest Day', description: 'Full day of rest and recovery.' },
+    { id: 3, user: 'Ava', thumbnail: 'https://dummyimage.com/120x120/87CEEB/0F1419.png&text=C', title: 'Core Blast', description: 'Pilates inspired core work' },
+    { id: 4, user: 'Liam', thumbnail: 'https://dummyimage.com/120x120/98FB98/0F1419.png&text=L', title: 'Leg Day', description: 'Heavy squats and accessories' },
+    { id: 5, user: 'Mia', thumbnail: 'https://dummyimage.com/120x120/FFA07A/0F1419.png&text=HIIT', title: 'HIIT Session', description: 'Short and spicy intervals' },
+    { id: 6, user: 'Noah', thumbnail: 'https://dummyimage.com/120x120/AFEEEE/0F1419.png&text=Y', title: 'Yoga Flow', description: 'Evening unwind sequence' },
+    { id: 7, user: 'Olivia', thumbnail: 'https://dummyimage.com/120x120/BA55D3/0F1419.png&text=F', title: 'Functional', description: 'EMOM kettlebell complex' },
+    { id: 8, user: 'Ethan', thumbnail: 'https://dummyimage.com/120x120/FFD700/0F1419.png&text=C', title: 'Cycling', description: 'Climb repeats' },
+    { id: 9, user: 'Sophia', thumbnail: 'https://dummyimage.com/120x120/40E0D0/0F1419.png&text=S', title: 'Swim', description: 'Drills + pull buoy set' },
+    { id: 10, user: 'Lucas', thumbnail: 'https://dummyimage.com/120x120/E6E6FA/0F1419.png&text=WU', title: 'Warm-up', description: 'Dynamic mobility and prep' },
   ];
 
   const cardVariants = {
@@ -94,26 +67,7 @@ const YourActivityPage = () => {
     }),
   };
 
-  const getHeatmapClass = (value: any) => {
-    if (!value) {
-      return styles.heatmapCellEmpty;
-    }
-    // Find the original checkin object from heatmapData
-    const originalCheckin = heatmapData.find((checkin: any) => checkin.createdAt === value.date);
-    if (!originalCheckin) {
-      return styles.heatmapCellEmpty;
-    }
-    switch ((originalCheckin as any).type) {
-      case 'WORKOUT':
-        return styles.heatmapCellHigh;
-      case 'REST':
-        return styles.heatmapCellMedium;
-      case 'REFLECTION':
-        return styles.heatmapCellLow;
-      default:
-        return styles.heatmapCellEmpty;
-    }
-  };
+
 
   const renderYouView = () => {
     // Calculate date range for ~1 month of data (35 days to show 5 weeks)
@@ -124,18 +78,9 @@ const YourActivityPage = () => {
     return (
       <motion.div key="you" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <h1 className={styles.pageTitle}>Your Activity</h1>
-        <h2 className={styles.sectionLabel}>This Month</h2>
-        <div className={styles.heatmapContainer}>
-          <CalendarHeatmap
-            startDate={startDate}
-            endDate={endDate}
-            values={transformedHeatmapData}
-            classForValue={getHeatmapClass}
-				showWeekdayLabels={false}
-            gutterSize={0}
-          />
-        </div>
-        <h2 className={styles.sectionLabel}>Recent Check-ins</h2>
+        <h2 className={styles.sectionLabel}>This Year</h2>
+        <Heatmap />
+        <h2 className={`${styles.sectionLabel} ${styles.sectionLabelTopPad}`}>Recent Check-ins</h2>
         <div className={styles.cardList}>
           {activityData.map((activity, i) => (
             <motion.div

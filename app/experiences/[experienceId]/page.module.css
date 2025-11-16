@@ -4,10 +4,7 @@
   --accent-primary: #3DD9D9;
   --text-primary: #FFFFFF;
   --text-secondary: #9CA3AF;
-  --heatmap-high: #3DD9D9;
-  --heatmap-medium: #E57373;
-  --heatmap-low: #D4C5B0;
-  --heatmap-empty: #1A2332;
+
 }
 
 .container {
@@ -33,50 +30,15 @@
   margin-bottom: 16px;
 }
 
-.heatmapContainer {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  margin-bottom: 32px;
-  -webkit-overflow-scrolling: touch;
+.sectionLabelTopPad {
+  padding-top: 8px;
 }
 
-.heatmapContainer :global(.react-calendar-heatmap) {
-  width: 100% !important;
-  height: auto !important;
-}
 
-.heatmapContainer :global(.react-calendar-heatmap-month-label) {
-  display: none;
-}
 
-.heatmapContainer :global(.react-calendar-heatmap text) {
-  fill: var(--text-secondary);
-  font-size: 10px;
-}
 
-.heatmapContainer :global(.react-calendar-heatmap rect) {
-  rx: 2px;
-  ry: 2px;
-  width: 6px !important;
-  height: 6px !important;
-}
 
-.heatmapCellHigh {
-  fill: var(--heatmap-high);
-}
 
-.heatmapCellMedium {
-  fill: var(--heatmap-medium);
-}
-
-.heatmapCellLow {
-  fill: var(--heatmap-low);
-}
-
-.heatmapCellEmpty {
-  fill: var(--heatmap-empty);
-}
 
 .cardList {
   display: flex;
@@ -143,6 +105,7 @@
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.48), 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .navItem {
@@ -165,7 +128,7 @@
   left: 4px;
   height: calc(100% - 8px);
   border-radius: 24px;
-  background-color: var(--accent-primary);
+  background-color: #4CA9FF;
   z-index: 1;
 }
 
@@ -180,4 +143,5 @@
   align-items: center;
   color: var(--text-secondary);
   cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.46), 0 2px 6px rgba(0, 0, 0, 0.34);
 }

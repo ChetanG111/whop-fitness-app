@@ -1,0 +1,59 @@
+{
+  "title": "Rebuild Year Heatmap — 4-level Neon Palette (from scratch)",
+  "goal": "Rebuild the GitHub-style year heatmap (COLUMNS = WEEKS, ROWS = WEEKDAYS) from scratch. Use a 4-level color scheme (ghosted-default + 3 neon levels). Add padding between month labels and the heatmap. Produce two files: `Heatmap.tsx` and `Heatmap.module.css` (full replacements).",
+  "scope": "Full rebuild — do not reuse old component code (treat as fresh implementation). Keep solution dependency-free and TypeScript-friendly.",
+  "key_requirements": [
+    "Grid layout: columns = weeks, rows = 7 weekdays (use CSS Grid with `grid-auto-flow: column`).",
+    "Levels: exactly 4 levels (0..3) with these internal names: `ghosted-default`, `workedout-first-neon`, `rest-2nd-neon`, `missed-3rd-neon`.",
+    "Color vars: expose CSS variables with these names and hex fallbacks so agent/dev can tweak later.",
+    "Label spacing: add an explicit small vertical gap between month labels and the top row of cells using `--label-gap` and ensure cells start below that gap.",
+    "Responsive: desktop shows full grid without vertical scroll; mobile may scroll horizontally (touch panning) but never vertically; hide scrollbars visually.",
+    "Deterministic: no `Math.random()`/`Date.now()` in SSR render; all date math must be UTC-safe.",
+    "Deliver exactly two files (Heatmap.tsx and Heatmap.module.css) with top-line one-line confirmations and a 3-step test checklist comment at bottom of Heatmap.tsx."
+  ],
+  "color_palette": {
+    "note": "Map buckets 0..3 to the following CSS vars and hex fallbacks (agent must use these exact var names).",
+    "--level-0": { "name": "ghosted-default", "hex": "#1A2332" },
+    "--level-1": { "name": "workedout-first-neon", "hex": "#4CEEFF" },
+    "--level-2": { "name": "rest-2nd-neon", "hex": "#FF4CE6" },
+    "--level-3": { "name": "missed-3rd-neon", "hex": "#FFB84C" }
+  },
+  "technical_details": [
+    "Heatmap.tsx: default-exported React function component (no explicit `JSX.Element` return type). Accept optional prop `data?: Array<{ date: string, value?: number }>`; if absent, generate deterministic example data via `hashDateToBucket(iso)` returning 0..3.",
+    "Use UTC-only helpers: `getWeekdayUTC(date)` → 0..6 (Mon..Sun), `getWeekIndexUTC(startOfYear, date)` → integer week column (0..~52).",
+    "DOM tree (exact):\n  <div className={styles.container}>\n    <div className={styles.gridInner}>\n      <div className={styles.monthsContainer}>...labels...</div>\n      <div className={styles.heatmapGrid}>...cells...</div>\n    </div>\n  </div>",
+    "Sizing variables (must exist in CSS): `--cell-size`, `--gap`, `--padding`, `--label-row-height`, `--label-gap`. The `gridInner` height must be computed EXCLUDING container padding/border as: `height = (7 * --cell-size) + (6 * --gap) + --label-row-height + --label-gap`.",
+    "Month labels: render inside `.gridInner` (absolute top:0 left:0) so label coordinates use the same origin as the grid. Each label left = `calc((var(--cell-size) + var(--gap)) * weekIndex + (var(--cell-size) / 2))` and inline style must include `transform: translateX(-50%)`.",
+    "Heatmap grid: `display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, var(--cell-size)); grid-auto-columns: var(--cell-size); gap: var(--gap); padding-top: calc(var(--label-row-height) + var(--label-gap));`",
+    "Cells: explicit numeric placement via inline style: `{ gridColumnStart: weekIndex+1, gridRowStart: weekday+1, backgroundColor: 'var(--level-X, <hex-fallback>)' }` where X is 0..3.",
+    "No interactions: do not implement hover/tooltip/click for v1.",
+    "Accessibility: component may be `aria-hidden` if decorative. Ensure highest neon level retains adequate contrast."
+  ],
+  "data_contract": {
+    "input": "Optional prop `data?: Array<{ date: 'YYYY-MM-DD', value?: number }>`.",
+    "mapping": "If a provided entry has `value`, clamp it into 0..3 and map to the named level. If `value` is absent, map date -> deterministic bucket using `hashDateToBucket(iso)` producing 0..3."
+  },
+  "css_requirements": [
+    "Expose the color variables and fallbacks exactly as listed in `color_palette` and ensure the variables are used for cells: `--level-0..--level-3`.",
+    "Expose `--label-gap` (suggest default `6px`) and ensure `padding-top` for `.heatmapGrid` uses `calc(var(--label-row-height) + var(--label-gap))` so a visible gap separates labels and first row of cells.",
+    "Hide vertical scrollbars: `.container { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }` and visually hide scrollbars with `::-webkit-scrollbar` and `scrollbar-width`.",
+    "Provide sensible responsive default for `--cell-size` using `clamp()` (example: `--cell-size: clamp(8px, 1.4vw, 14px)`), but ensure `gridInner` height uses same var so no overflow.",
+    "Month labels should have `white-space: nowrap`, small uppercase font, and optional semi-opaque background to mask overlapping cells on very small widths."
+  ],
+  "deliverables": [
+    "Heatmap.tsx — full TypeScript React component implementing all above rules. Top-line comment: 'Rebuilt heatmap: 4-level neon palette; gridInner owns height; month labels inside gridInner; COLUMNS = WEEKS'.",
+    "Heatmap.module.css — full CSS module with variables, styles for container, gridInner, monthsContainer, monthLabel, heatmapGrid, cell. Top-line comment same as above.",
+    "Append a 3-step test checklist at bottom of Heatmap.tsx as a code comment:\n  1) No hydration warnings in console after SSR.\n  2) No vertical scrollbar appears inside the heatmap card at desktop and mobile widths.\n  3) Month labels aligned and separated from cells by --label-gap; cells use 4-level neon palette."
+  ],
+  "constraints": [
+    "Do not introduce additional color levels or gradients — exactly 4 levels only (0..3).",
+    "Do not use external libraries.",
+    "Do not implement interactivity for v1.",
+    "Return only the two files requested when delivering code."
+  ],
+  "testing_instructions": [
+    "1. Build & run SSR (if applicable) and load the page; confirm console shows no React hydration warnings.",
+    "2. Verify desktop: full week-column grid visible; no vertical scroll inside the card; month labels appear above columns with a visible gap controlled by `--label-gap`.",
+    "3. Verify mobile: heatmap may pan horizontally by touch; vertical scroll absent; month labels remain aligned and do not wrap."
+  ]
+}
