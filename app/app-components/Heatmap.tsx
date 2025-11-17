@@ -22,18 +22,6 @@ const getWeekIndexUTC = (startOfYear: Date, date: Date): number => {
   return Math.floor((dayOfYear + firstDayWeekday) / 7);
 };
 
-/**
- * Generates a deterministic, pseudo-random bucket (0-3) from a date string.
- */
-const hashDateToBucket = (isoDate: string): number => {
-  let hash = 0;
-  for (let i = 0; i < isoDate.length; i++) {
-    const char = isoDate.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return (hash % 4 + 4) % 4; // Modulo to get a value in the 0-3 range
-};
 
 const getColorForValue = (value: number) => {
     const level = Math.max(0, Math.min(3, Math.round(value)));
@@ -50,27 +38,24 @@ const Heatmap = ({ data }: HeatmapProps) => {
 
   const dataMap = React.useMemo(() => {
     const map = new Map<string, number>();
-    const allDays = [];
+    const allDays: string[] = [];
     for (let d = new Date(startDate); d <= endDate; d.setUTCDate(d.getUTCDate() + 1)) {
-        allDays.push(d.toISOString().split('T')[0]);
+      allDays.push(d.toISOString().split('T')[0]);
     }
 
-    const providedDataMap = data ? new Map(data.map(item => [item.date, item.value])) : null;
+    const providedDataMap = new Map<string, number>();
+    if (data) {
+      data.forEach(item => {
+        // Treat missing values as 0; clamp later
+        providedDataMap.set(item.date, item.value ?? 0);
+      });
+    }
 
     allDays.forEach(isoDate => {
-        let value: number | undefined;
-        if (providedDataMap && providedDataMap.has(isoDate)) {
-            value = providedDataMap.get(isoDate);
-        }
-
-        if (value !== undefined) {
-            map.set(isoDate, Math.max(0, Math.min(3, value)));
-        } else {
-            // Per design: if value is absent for a date or no data prop, use hash
-            map.set(isoDate, hashDateToBucket(isoDate));
-        }
+      const value = providedDataMap.get(isoDate) ?? 0;
+      map.set(isoDate, Math.max(0, Math.min(3, value)));
     });
-    
+
     return map;
   }, [data, startDate, endDate]);
 
@@ -115,6 +100,13 @@ const Heatmap = ({ data }: HeatmapProps) => {
             const weekIndex = getWeekIndexUTC(startDate, day.date);
             const weekday = getWeekdayUTC(day.date);
             const value = dataMap.get(day.iso) ?? 0;
+            const tooltip = day.date.toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: '2-digit',
+              weekday: 'short',
+              timeZone: 'UTC',
+            });
             
             const cellStyle: React.CSSProperties = {
               gridColumnStart: weekIndex + 1,
@@ -122,7 +114,15 @@ const Heatmap = ({ data }: HeatmapProps) => {
               backgroundColor: getColorForValue(value),
             };
 
-            return <div key={index} className={styles.cell} style={cellStyle} />;
+            return (
+              <div
+                key={index}
+                className={styles.cell}
+                style={cellStyle}
+                title={tooltip}
+                aria-label={tooltip}
+              />
+            );
           })}
         </div>
       </div>
