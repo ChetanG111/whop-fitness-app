@@ -33,9 +33,11 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
     queryKey: ['userLogs', userId],
     queryFn: async () => {
       const headers: HeadersInit = {};
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NEXT_PUBLIC_TEST_USER_ID) {
+        headers['X-Test-User-Id'] = process.env.NEXT_PUBLIC_TEST_USER_ID as string;
+      } else if (process.env.NODE_ENV === 'development') {
         headers['X-Test-User-Id'] = 'test-user-123';
-      } 
+      }
 
       const res = await fetch('/api/checkins', { headers });
       if (!res.ok) {
@@ -78,10 +80,11 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
     queryKey: ['feedLogs', userId],
     queryFn: async () => {
       const headers: HeadersInit = {};
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NEXT_PUBLIC_TEST_USER_ID) {
+        headers['X-Test-User-Id'] = process.env.NEXT_PUBLIC_TEST_USER_ID as string;
+      } else if (process.env.NODE_ENV === 'development') {
         headers['X-Test-User-Id'] = 'test-user-123';
-      } 
-            // Note: In production, Whop automatically adds x-whop-user-id header
+      }
       const res = await fetch('/api/feed', { headers });
       if (!res.ok) {
         throw new Error('Failed to fetch feed');
@@ -253,7 +256,9 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
           // Check if user already checked in today
           try {
             const headers: HeadersInit = {};
-            if (process.env.NODE_ENV === 'development') {
+            if (process.env.NEXT_PUBLIC_TEST_USER_ID) {
+              headers['X-Test-User-Id'] = process.env.NEXT_PUBLIC_TEST_USER_ID as string;
+            } else if (process.env.NODE_ENV === 'development') {
               headers['X-Test-User-Id'] = 'test-user-123';
             }
             
