@@ -149,8 +149,7 @@
 }
 
 .dashedBox {
-  height: 260px;
-  padding: 20px;
+  min-height: 260px;
   border: 2px dashed rgba(255, 255, 255, 0.08);
   border-radius: 28px;
   background-color: transparent;
@@ -159,6 +158,25 @@
   justify-content: center;
   align-items: center;
   color: rgba(255, 255, 255, 0.46);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.dashedBoxWithImage {
+  display: inline-flex;      /* collapse to content width */
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(255,255,255,0.08);
+  border-radius: 28px;
+  background: transparent;
+  padding: 0;                /* optional: use small padding if you want a frame */
+  overflow: hidden;
+  width: auto;               /* important: don't force 92% */
+  max-width: 92%; 
+}
+
+.dashedBox p {
+  padding: 20px;
 }
 
 .pageDots {
@@ -241,4 +259,14 @@
     color: #071214;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
+}
+
+.uploadedImage {
+  display: block;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 28px;
+  max-height: 50vh;
+  max-width: 100%;
 }

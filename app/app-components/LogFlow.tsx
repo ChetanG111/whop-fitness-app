@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+"use client";
+import React, { useState, useRef } from 'react';
 import styles from './LogFlow.module.css';
 
 interface LogFlowProps {
@@ -11,6 +12,9 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
   const [workoutType, setWorkoutType] = useState('');
   const [isPublicNote, setIsPublicNote] = useState(false);
   const [isPublicPhoto, setIsPublicPhoto] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   const handleSelection = (type: string) => {
     setSelection(type);
@@ -74,17 +78,42 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
     </div>
   );
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const renderPhotoScreen = () => (
     <div className={styles.screen}>
       <div className={styles.stack}>
-        <div className={styles.dashedBox}>
+        <div
+          className={uploadedImage ? styles.dashedBoxWithImage : styles.dashedBox}
+          onClick={() => !uploadedImage && fileInputRef.current?.click()}
+        >
+          {uploadedImage ? (
+            <img src={uploadedImage} alt="Uploaded" className={styles.uploadedImage} />
+          ) : (
             <p>Upload Photo</p>
+          )}
         </div>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          accept="image/*"
+          style={{ display: 'none' }}
+        />
         <div className={styles.row}>
           <span>Public Photo</span>
           <div className={`${styles.toggle} ${isPublicPhoto ? styles.toggleOn : ''}`} onClick={() => setIsPublicPhoto(!isPublicPhoto)}></div>
         </div>
-        <button className={styles.button}>Upload Photo</button>
+        <button className={styles.button} onClick={() => fileInputRef.current?.click()}>Upload Photo</button>
       </div>
       <div className={styles.footer}>
         <button className={styles.navArrow} onClick={() => setStep(1)}>
