@@ -35,8 +35,10 @@ const LogFlow = ({ onClose, initialError }: LogFlowProps) => {
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
-      
-      if (process.env.NODE_ENV === 'development') {
+      // Allow explicit test user in both dev and prod using env
+      if (process.env.NEXT_PUBLIC_TEST_USER_ID) {
+        headers['X-Test-User-Id'] = process.env.NEXT_PUBLIC_TEST_USER_ID as string;
+      } else if (process.env.NODE_ENV === 'development') {
         headers['X-Test-User-Id'] = 'test-user-123';
       }
 

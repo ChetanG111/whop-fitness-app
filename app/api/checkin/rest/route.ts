@@ -14,7 +14,20 @@ import { sanitize } from '@/lib/sanitize';
  */
 export async function POST(request: NextRequest) {
   try {
-    const whopUserId = request.headers.get('x-whop-user-id') || request.headers.get('X-Test-User-Id');
+    const whopUserId =
+      request.headers.get('x-whop-user-id') ||
+      request.headers.get('X-Whop-User-Id') ||
+      request.headers.get('x-whop-userid') ||
+      request.headers.get('whop-user-id') ||
+      (() => {
+        for (const [k, v] of request.headers.entries()) {
+          const key = k.toLowerCase();
+          if (key.includes('whop') && key.includes('user') && key.includes('id')) return v;
+        }
+        return null as string | null;
+      })() ||
+      request.headers.get('X-Test-User-Id') ||
+      (process.env.NEXT_PUBLIC_TEST_USER_ID || null);
     if (!whopUserId) {
       return NextResponse.json({ message: 'Unauthorized: missing user id' }, { status: 401 });
     }
