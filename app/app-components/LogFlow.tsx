@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef } from 'react';
 import styles from './LogFlow.module.css';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface LogFlowProps {
   onClose: () => void;
@@ -10,10 +11,88 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
   const [step, setStep] = useState(0);
   const [selection, setSelection] = useState('');
   const [workoutType, setWorkoutType] = useState('');
+  const [note, setNote] = useState(''); // Added state for note
   const [isPublicNote, setIsPublicNote] = useState(false);
   const [isPublicPhoto, setIsPublicPhoto] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const queryClient = useQueryClient();
+
+  const logMutation = useMutation({
+    mutationFn: async (logData: any) => {
+      let endpoint = '';
+      if (logData.type === 'Workout') {
+        endpoint = '/api/checkin/workout';
+      } else if (logData.type === 'Rest') {
+        endpoint = '/api/checkin/rest';
+      } else if (logData.type === 'Reflect') {
+        endpoint = '/api/checkin/reflection';
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(logData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to log activity');
+      }
+      return response.json();
+    },
+    onMutate: async (newLog) => {
+      // Optimistic update logic (C8)
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ['userLogs'] });
+      await queryClient.cancelQueries({ queryKey: ['feedLogs'] });
+
+      // Snapshot the previous value
+      const previousUserLogs = queryClient.getQueryData(['userLogs']);
+      const previousFeedLogs = queryClient.getQueryData(['feedLogs']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['userLogs'], (old: any) => {
+        const optimisticLog = {
+          ...newLog,
+          id: 'optimistic-id', // Temporary ID
+          created_at: new Date().toISOString(),
+          user: { id: 'current-user-id', name: 'You', avatarUrl: null }, // Placeholder user
+        };
+        return old ? [optimisticLog, ...old] : [optimisticLog];
+      });
+
+      if (newLog.type === 'Workout' && newLog.sharedPhoto) { // Assuming sharedPhoto is isPublic
+        queryClient.setQueryData(['feedLogs'], (old: any) => {
+          const optimisticLog = {
+            ...newLog,
+            id: 'optimistic-id', // Temporary ID
+            created_at: new Date().toISOString(),
+            user: { id: 'current-user-id', name: 'You', avatarUrl: null }, // Placeholder user
+          };
+          return old ? [optimisticLog, ...old] : [optimisticLog];
+        });
+      }
+
+      return { previousUserLogs, previousFeedLogs };
+    },
+    onError: (err, newLog, context) => {
+      // Rollback on error (C8)
+      queryClient.setQueryData(['userLogs'], context?.previousUserLogs);
+      queryClient.setQueryData(['feedLogs'], context?.previousFeedLogs);
+      // TODO: Show error toast
+      console.error('Log mutation failed:', err);
+    },
+    onSettled: () => {
+      // Invalidate and refetch (C9)
+      queryClient.invalidateQueries({ queryKey: ['userLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['feedLogs'] });
+      onClose(); // Close modal on success
+    },
+  });
 
 
   const handleSelection = (type: string) => {
@@ -52,7 +131,7 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
         ) : (
           <button className={styles.secondaryButton}>{selection}</button>
         )}
-        <textarea className={styles.input} placeholder="Insert note"></textarea>
+        <textarea className={styles.input} placeholder="Insert note" value={note} onChange={(e) => setNote(e.target.value)}></textarea>
         <div className={styles.row}>
           <span>Public Note</span>
           <div className={`${styles.toggle} ${isPublicNote ? styles.toggleOn : ''}`} onClick={() => setIsPublicNote(!isPublicNote)}></div>
@@ -126,7 +205,27 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
             <span className={styles.dot}></span>
             <span className={`${styles.dot} ${styles.activeDot}`}></span>
         </div>
-        <button className={styles.primaryMini} onClick={onClose}>Log</button>
+        <button
+          className={styles.primaryMini}
+          onClick={() => {
+            const payload: any = {
+              type: selection,
+              note: note,
+              timestamp: new Date().toISOString(),
+            };
+            if (selection === 'Workout') {
+              payload.muscleGroup = workoutType;
+              payload.sharedPhoto = isPublicPhoto; // Use isPublicPhoto for workout visibility
+            } else {
+              // Rest and Reflect logs are never public, so no sharedPhoto for them
+              payload.sharedPhoto = false;
+            }
+            logMutation.mutate(payload);
+          }}
+          disabled={logMutation.isPending}
+        >
+          {logMutation.isPending ? 'Logging...' : 'Log'}
+        </button>
       </div>
     </div>
   );

@@ -1,0 +1,15 @@
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.user).toEqual({ id: MOCK_USER.whopUserId, name: MOCK_USER.name, avatarUrl: null });
+    // Verify the correct parameters were passed to createCheckin
+    expect(dbHelpers.createCheckin).toHaveBeenCalledWith(expect.objectContaining({
+      whopUserId: MOCK_USER.whopUserId,
+      type: CheckinType.WORKOUT,
+      muscleGroup: 'Push',
+      note: 'My workout',
+      sharedPhoto: false,
+    }));
+    expect(dbHelpers.updateTodayStats).toHaveBeenCalled();
+  });

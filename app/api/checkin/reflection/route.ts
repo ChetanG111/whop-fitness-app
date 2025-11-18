@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { getTodayCheckin, createCheckin, getUserByWhopId } from '@/lib/db-helpers';
 import { whopsdk } from '@/lib/whop-sdk';
 import { CheckinType } from '@prisma/client';
+import { sanitize } from '@/lib/sanitize';
 
 /**
  * POST /api/checkin/reflection
@@ -55,12 +56,13 @@ export async function POST(request: NextRequest) {
     const checkin = await createCheckin({
       whopUserId,
       type: CheckinType.REFLECTION,
-      note,
+      note: sanitize(note),
+      sharedPhoto: false,
     });
 
     // Note: Reflections do not update community stats as per docs.md
 
-    return NextResponse.json(checkin, { status: 201 });
+    return NextResponse.json({ log: checkin, user: { id: user.whopUserId, name: user.name, avatarUrl: null } }, { status: 201 });
   } catch (error) {
     console.error('Error in /api/checkin/reflection:', error);
     return NextResponse.json({ message: 'An internal server error occurred' }, { status: 500 });

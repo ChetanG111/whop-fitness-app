@@ -89,7 +89,7 @@ export async function createCheckin(data: {
   whopUserId: string
   type: CheckinType
   muscleGroup?: string
-  note?: string
+  note?: string | null
   photoUrl?: string
   sharedPhoto?: boolean
 }) {

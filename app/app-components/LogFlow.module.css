@@ -261,6 +261,11 @@
     font-family: 'Inter', sans-serif;
 }
 
+.primaryMini:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .uploadedImage {
   display: block;
   width: auto;

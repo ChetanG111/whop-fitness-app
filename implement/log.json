@@ -14,8 +14,8 @@
 "User picks: workout | rest | reflection.",
 "If workout, workoutKind selector (already implemented).",
 "Optional note & public toggle.",
-"Photo upload controls disabled for now.",
-"Log -> DB row created -> modal closes -> You page + Feed page show cards according to visibility."
+"User can upload a photo, which is stored and attached to the log entry.",
+"Log -> DB row created -> modal closes -> You page + Feed page show activity cards according to visibility."
 ]
 },
 "database": {
@@ -78,7 +78,10 @@
 "Insert into logs table via ORM (Prisma/knex/pg).",
 "If isPublic true: mark log visibility (or insert into feed table) so feed query can pick it up.",
 "Return created object including id, created_at and a minimal user summary for feed rendering.",
-"Return appropriate status codes: 201 success, 400 validation, 401 auth, 500 server error."
+"Return appropriate status codes: 201 success, 400 validation, 401 auth, 500 server error.",
+"Handle photo uploads: create or use an existing endpoint (e.g., POST /api/upload) that accepts multipart/form-data, stores the image in storage (Supabase storage or local bucket), returns a public or signed URL or fileId, and associates it with the log using the photo_id field.",
+"Feed visibility rule: Only logs with type='workout' AND is_public=true should appear in the feed. Rest and reflection logs must never be inserted into feed queries."
+
 ],
 "ifRoutesExist": {
 "verify": [
@@ -92,16 +95,23 @@
 ]
 },
 "ifRoutesMissing": {
-"createUnifiedRoute": [
-"implement POST /api/logs in the backend routing layer",
-"use auth userId from session instead of trusting userId sent from client",
-"validate type ∈ ['workout','rest','reflection']",
-"create DB row and return created object with user summary",
-"emit telemetry/error logs"
-],
-"specializedRoutesOption": [
-"implement POST /api/logs/{workout|rest|reflection} delegating to same controller logic if preferred"
-]
+  "createUnifiedRoute": [
+    "implement POST /api/logs in the backend routing layer",
+    "use auth userId from session instead of trusting userId sent from client",
+    "validate type ∈ ['workout','rest','reflection']",
+    "create DB row and return created object with user summary",
+    "emit telemetry/error logs"
+  ],
+  "specializedRoutesOption": [
+    "implement POST /api/logs/{workout|rest|reflection} delegating to same controller logic if preferred"
+  ],
+  "createUploadRoute": [
+    "If no photo upload endpoint exists, implement POST /api/upload that accepts multipart/form-data",
+    "Validate file type (jpg/png/webp), size limits, and run basic security checks",
+    "Store the file in Supabase storage or the configured file server",
+    "Return { photoId, photoUrl }",
+    "Make logs endpoint attach the returned photoId to the log row"
+  ]
 }
 },
 "frontend": {
@@ -119,13 +129,13 @@
 ]
 },
 "LogForm": {
-"purpose": "Collect workoutKind (if applicable), note, public toggle, disabled photo controls, Log button",
-"inputs": ["workoutKind", "note", "isPublic", "timestamp (auto)"],
-"validation": ["note <= 500 chars"],
-"ux": [
-"disabled photo button with tooltip 'coming soon'",
-"show spinner on Log button while request in-flight"
-]
+  "purpose": "Collect workoutKind (if applicable), note, public toggle, photo upload, and Log button",
+  "inputs": ["workoutKind", "note", "isPublic", "photoFile", "timestamp (auto)"],
+  "validation": ["note <= 500 chars"],
+  "ux": [
+    "show spinner on Log button while request in-flight",
+    "keep the current image preview after uploading a photo"
+  ]
 },
 "YouFeedCard/GlobalFeedCard": {
 "propsExpectedFromAPI": ["id","userSummary","type","workout_kind","note","is_public","created_at"]
@@ -136,7 +146,7 @@
 "mutationBehavior": {
 "optimisticUpdate": {
 "youList": "Insert optimistic entry into user 'you' cache immediately on submit.",
-"feedList": "Insert into feed cache only if isPublic === true (optimistically).",
+"feedList": "Insert into feed cache ONLY IF (type === 'workout' AND isPublic === true). Rest and reflection logs must NEVER appear in feed.",
 "rollback": "If mutation fails, remove optimistic entry and show an error toast."
 },
 "postSuccess": "Invalidate and refetch userLogs and feedLogs queries.",
@@ -146,7 +156,7 @@
 "ifFrontendAlreadyHasForm": {
 "verify": [
 "form state maps to API payload fields",
-"photo upload UI is disabled",
+"photo upload UI should use the existing logic for selecting an image and showing a preview",
 "submit uses current auth session"
 ],
 "modify": [
@@ -180,7 +190,7 @@
 "duplicateSubmission": "disable Log button on click; optionally use idempotency tokens",
 "networkFailure": "rollback optimistic update; show retry CTA",
 "timezone": "send ISO timestamp from client but server should store timestamptz",
-"visibilityChange": "implement PATCH /api/logs/:id to update is_public and update feed caches on success"
+"visibilityChange": "visibility updates only affect workout logs. Rest and reflection logs do not appear on feed regardless of visibility."
 },
 "tests": {
 "unitTests": [

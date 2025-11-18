@@ -1,8 +1,8 @@
 import { Whop } from "@whop/sdk";
 
 export const whopsdk = new Whop({
-	appID: process.env.NEXT_PUBLIC_WHOP_APP_ID,
-	apiKey: process.env.WHOP_API_KEY,
+	appID: process.env.NEXT_PUBLIC_WHOP_APP_ID || 'app_test',
+	apiKey: process.env.WHOP_API_KEY || 'test-api-key', // Provide fallback for tests
 	// Use Buffer for base64 encoding to work in Node (btoa is a browser API)
 	webhookKey: Buffer.from(process.env.WHOP_WEBHOOK_SECRET || "").toString("base64"),
 });
