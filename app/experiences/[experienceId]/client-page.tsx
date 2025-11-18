@@ -12,6 +12,8 @@ import ProfileView from '../../app-components/ProfileView';
 
 import ActivityCard from '../../app-components/ActivityCard';
 
+import { useSwipeable } from 'react-swipeable';
+
 // Memoize to prevent unnecessary re-renders
 const MemoActivityCard = memo(ActivityCard);
 
@@ -28,6 +30,43 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
   const [isProfileViewOpen, setIsProfileViewOpen] = useState(false);
   const [checkinError, setCheckinError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const [direction, setDirection] = useState(0);
+
+  const variants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? '5%' : '-5%',
+      opacity: 0,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? '5%' : '-5%',
+      opacity: 0,
+    }),
+  };
+
+  const transition = {
+    type: "spring" as const,
+    bounce: 0.3,
+    duration: 0.2,
+  };
+
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      setDirection(1);
+      setActiveView('You');
+    },
+    onSwipedRight: () => {
+      setDirection(-1);
+      setActiveView('Feed');
+    },
+    preventScrollOnSwipe: true,
+    trackMouse: true,
+  });
 
   const { data: userLogs, isLoading, error: userLogsError } = useQuery({
     queryKey: ['userLogs', userId],
@@ -134,7 +173,16 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
     if (userLogsError) return <p>Error loading activity: {(userLogsError as Error).message}</p>;
 
     return (
-      <motion.div key="you" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <motion.div
+        key="you"
+        custom={direction}
+        variants={variants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={transition}
+        className={styles.view}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h1 className={styles.pageTitle}>Your Activity</h1>
           {process.env.NODE_ENV === 'development' && (
@@ -192,7 +240,16 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
     if (feedError) return <p>Error loading feed</p>;
 
     return (
-      <motion.div key="feed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <motion.div
+        key="feed"
+        custom={direction}
+        variants={variants}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        transition={transition}
+        className={styles.view}
+      >
         <h1 className={styles.pageTitle}>Public Feed</h1>
         <div className={styles.cardList}>
           {feedLogs?.map((activity: any, i: number) => (
@@ -225,9 +282,11 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
           {checkinError}
         </div>
       )}
-      <AnimatePresence mode="wait">
-        {activeView === 'You' ? renderYouView() : renderFeedView()}
-      </AnimatePresence>
+      <div {...handlers} className={styles.swipeContainer}>
+        <AnimatePresence mode="wait" custom={direction}>
+          {activeView === 'You' ? renderYouView() : renderFeedView()}
+        </AnimatePresence>
+      </div>
 
       {isLogFlowOpen && <LogFlow 
         onClose={() => {
@@ -246,8 +305,8 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
         </motion.button>
         <div className={styles.centerPillContainer}>
           <motion.div className={styles.activePill} animate={pillStyle} transition={{ duration: 0.2, ease: 'easeOut' }} />
-          <button ref={feedRef} className={styles.navItem} onClick={() => setActiveView('Feed')} style={{ color: activeView === 'Feed' ? '#0F1419' : '#9CA3AF' }}>Feed</button>
-          <button ref={youRef} className={styles.navItem} onClick={() => setActiveView('You')} style={{ color: activeView === 'You' ? '#0F1419' : '#9CA3AF' }}>You</button>
+          <button ref={feedRef} className={styles.navItem} onClick={() => { setDirection(-1); setActiveView('Feed'); }} style={{ color: activeView === 'Feed' ? '#0F1419' : '#9CA3AF' }}>Feed</button>
+          <button ref={youRef} className={styles.navItem} onClick={() => { setDirection(1); setActiveView('You'); }} style={{ color: activeView === 'You' ? '#0F1419' : '#9CA3AF' }}>You</button>
         </div>
         <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }} onClick={async () => {
           // Check if user already checked in today
