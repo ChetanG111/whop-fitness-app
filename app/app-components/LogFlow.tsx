@@ -5,9 +5,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface LogFlowProps {
   onClose: () => void;
+  initialError?: string | null;
 }
 
-const LogFlow = ({ onClose }: LogFlowProps) => {
+const LogFlow = ({ onClose, initialError }: LogFlowProps) => {
   const [step, setStep] = useState(0);
   const [selection, setSelection] = useState('');
   const [workoutType, setWorkoutType] = useState('');
@@ -15,6 +16,7 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
   const [isPublicNote, setIsPublicNote] = useState(false);
   const [isPublicPhoto, setIsPublicPhoto] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(initialError || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const queryClient = useQueryClient();
@@ -30,11 +32,17 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
         endpoint = '/api/checkin/reflection';
       }
 
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (process.env.NODE_ENV === 'development') {
+        headers['X-Test-User-Id'] = 'test-user-123';
+      }
+
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(logData),
       });
 
@@ -83,14 +91,18 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
       // Rollback on error (C8)
       queryClient.setQueryData(['userLogs'], context?.previousUserLogs);
       queryClient.setQueryData(['feedLogs'], context?.previousFeedLogs);
-      // TODO: Show error toast
-      console.error('Log mutation failed:', err);
+      // Show error message
+      setErrorMessage(err.message);
+      // Don't log to console to avoid console errors
+    },
+    onSuccess: () => {
+      // Close modal on success
+      onClose();
     },
     onSettled: () => {
       // Invalidate and refetch (C9)
       queryClient.invalidateQueries({ queryKey: ['userLogs'] });
       queryClient.invalidateQueries({ queryKey: ['feedLogs'] });
-      onClose(); // Close modal on success
     },
   });
 
@@ -102,6 +114,11 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
 
   const renderSelectionScreen = () => (
     <div className={styles.screen}>
+      {errorMessage && (
+        <div style={{ padding: '12px', backgroundColor: '#E57373', color: '#fff', borderRadius: '8px', marginBottom: '16px', textAlign: 'center' }}>
+          {errorMessage}
+        </div>
+      )}
       <div className={styles.stack}>
         <button className={styles.button} onClick={() => handleSelection('Workout')}>Workout</button>
         <button className={styles.button} onClick={() => handleSelection('Rest')}>Rest</button>
@@ -211,6 +228,7 @@ const LogFlow = ({ onClose }: LogFlowProps) => {
             const payload: any = {
               type: selection,
               note: note,
+              sharedNote: isPublicNote, // Send public note preference
               timestamp: new Date().toISOString(),
             };
             if (selection === 'Workout') {

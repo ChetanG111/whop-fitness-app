@@ -1,6 +1,45 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { updateTodayStats } from '@/lib/db-helpers';
+
+/**
+ * GET /api/checkins
+ * 
+ * Retrieves all check-ins for a given user.
+ * The user is identified by the 'x-whop-user-id' header or 'X-Test-User-Id' for development.
+ * 
+ * @param request - The incoming Next.js request.
+ * @returns A Response object with the user's check-ins or an error message.
+ */
+export async function GET(request: NextRequest) {
+  try {
+    let whopUserId: string | null = null;
+
+    if (process.env.NODE_ENV === 'development') {
+      whopUserId = request.headers.get('X-Test-User-Id');
+    } else {
+      whopUserId = request.headers.get('x-whop-user-id');
+    }
+
+    if (!whopUserId) {
+      return NextResponse.json({ message: 'User ID not found.' }, { status: 400 });
+    }
+
+    const checkins = await prisma.checkin.findMany({
+      where: {
+        whopUserId: whopUserId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return NextResponse.json({ checkins });
+  } catch (error) {
+    console.error('Error in /api/checkins GET:', error);
+    return NextResponse.json({ message: 'An internal server error occurred' }, { status: 500 });
+  }
+}
 
 /**
  * DELETE /api/checkins

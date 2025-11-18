@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'User not found. Please initialize user first.' }, { status: 404 });
     }
 
-    const { note } = await request.json();
+    const { note, sharedNote } = await request.json();
 
     const todayCheckin = await getTodayCheckin(whopUserId);
     if (todayCheckin) {
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
       type: CheckinType.REST,
       note: sanitize(note),
       sharedPhoto: false,
+      sharedNote,
     });
 
     // Update community stats asynchronously

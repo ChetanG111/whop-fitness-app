@@ -92,6 +92,7 @@ export async function createCheckin(data: {
   note?: string | null
   photoUrl?: string
   sharedPhoto?: boolean
+  sharedNote?: boolean
 }) {
   return await prisma.checkin.create({
     data: {
@@ -101,6 +102,7 @@ export async function createCheckin(data: {
       note: data.note,
       photoUrl: data.photoUrl,
       sharedPhoto: data.sharedPhoto ?? false,
+      sharedNote: data.sharedNote ?? false,
     },
   })
 }
@@ -118,14 +120,20 @@ export async function getUserCheckins(whopUserId: string, limit = 30) {
 
 /**
  * Get recent check-ins for public feed
- * Only returns WORKOUT and REST types (not REFLECTION)
+ * Returns check-ins with sharedNote enabled (any type) or WORKOUT/REST with sharedPhoto
  */
 export async function getPublicFeedCheckins(limit = 50) {
   return await prisma.checkin.findMany({
     where: {
-      type: {
-        in: ['WORKOUT', 'REST'],
-      },
+      OR: [
+        { sharedNote: true }, // Any check-in with public note enabled
+        {
+          type: {
+            in: ['WORKOUT', 'REST'],
+          },
+          sharedPhoto: true, // WORKOUT/REST with public photo
+        },
+      ],
     },
     include: {
       user: {

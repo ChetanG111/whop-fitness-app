@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'User not found. Please initialize user first.' }, { status: 404 });
     }
 
-    const { note } = await request.json();
+    const { note, sharedNote } = await request.json();
 
     const todayCheckin = await getTodayCheckin(whopUserId);
     if (todayCheckin) {
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
       type: CheckinType.REFLECTION,
       note: sanitize(note),
       sharedPhoto: false,
+      sharedNote,
     });
 
     // Note: Reflections do not update community stats as per docs.md

@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'User not found. Please initialize user first.' }, { status: 404 });
     }
 
-    const { muscleGroup, note, photoUrl, sharedPhoto } = await request.json();
+    const { muscleGroup, note, photoUrl, sharedPhoto, sharedNote } = await request.json();
 
     if (!muscleGroup) {
       return NextResponse.json({ message: 'Muscle group is required for workout check-in.' }, { status: 400 });
@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
       note: sanitize(note),
       photoUrl,
       sharedPhoto,
+      sharedNote,
     });
 
     // Update community stats asynchronously

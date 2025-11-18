@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import styles from './page.module.css';
 
@@ -21,7 +22,96 @@ const YourActivityPage = () => {
   const youRef = useRef<HTMLButtonElement>(null);
   const [isLogFlowOpen, setIsLogFlowOpen] = useState(false);
   const [isProfileViewOpen, setIsProfileViewOpen] = useState(false);
+  const [checkinError, setCheckinError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
+  const { data: userLogs, isLoading, error } = useQuery({
+    queryKey: ['userLogs'],
+    queryFn: async () => {
+      const headers: HeadersInit = {};
+      if (process.env.NODE_ENV === 'development') {
+        headers['X-Test-User-Id'] = 'test-user-123';
+      }
+      
+      const res = await fetch('/api/checkins', { headers });
+      if (!res.ok) {
+        throw new Error('Failed to fetch user logs');
+      }
+      const data = await res.json();
+      
+      // Transform checkins to match ActivityCard format
+      return data.checkins.map((checkin: any) => {
+        let thumbnail = '';
+        let title = '';
+        let description = checkin.note || '';
+        
+        if (checkin.type === 'WORKOUT') {
+          thumbnail = 'https://dummyimage.com/120x120/3DD9D9/0F1419.png&text=W';
+          title = `Test User: ${checkin.muscleGroup || 'Workout'}`;
+          description = checkin.note || 'Completed workout';
+        } else if (checkin.type === 'REST') {
+          thumbnail = 'https://dummyimage.com/120x120/E57373/0F1419.png&text=R';
+          title = 'Test User: Rest Day';
+          description = checkin.note || 'Active recovery';
+        } else if (checkin.type === 'REFLECTION') {
+          thumbnail = 'https://dummyimage.com/120x120/D4C5B0/0F1419.png&text=Ref';
+          title = 'Test User: Reflection';
+          description = checkin.note || 'Daily reflection';
+        }
+        
+        return {
+          id: checkin.id,
+          thumbnail,
+          title,
+          description,
+        };
+      });
+    },
+  });
+
+  const { data: feedLogs, isLoading: feedLoading, error: feedError } = useQuery({
+    queryKey: ['feedLogs'],
+    queryFn: async () => {
+      const headers: HeadersInit = {};
+      if (process.env.NODE_ENV === 'development') {
+        headers['X-Test-User-Id'] = 'test-user-123';
+      }
+      
+      const res = await fetch('/api/feed', { headers });
+      if (!res.ok) {
+        throw new Error('Failed to fetch feed');
+      }
+      const data = await res.json();
+      
+      // Transform feed checkins to match ActivityCard format
+      return data.map((checkin: any) => {
+        let thumbnail = '';
+        let title = '';
+        let description = checkin.note || '';
+        
+        if (checkin.type === 'WORKOUT') {
+          thumbnail = 'https://dummyimage.com/120x120/3DD9D9/0F1419.png&text=W';
+          title = `${checkin.user.name}: ${checkin.muscleGroup || 'Workout'}`;
+          description = checkin.note || 'Completed workout';
+        } else if (checkin.type === 'REST') {
+          thumbnail = 'https://dummyimage.com/120x120/E57373/0F1419.png&text=R';
+          title = `${checkin.user.name}: Rest Day`;
+          description = checkin.note || 'Active recovery';
+        } else if (checkin.type === 'REFLECTION') {
+          thumbnail = 'https://dummyimage.com/120x120/D4C5B0/0F1419.png&text=Ref';
+          title = `${checkin.user.name}: Reflection`;
+          description = checkin.note || 'Daily reflection';
+        }
+        
+        return {
+          id: checkin.id,
+          thumbnail,
+          title,
+          description,
+        };
+      });
+    },
+  });
 
   useEffect(() => {
     const activeRef = activeView === 'Feed' ? feedRef : youRef;
@@ -33,72 +123,112 @@ const YourActivityPage = () => {
     }
   }, [activeView]);
   
-const renderYouView = () => (
-    <motion.div key="you" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <h1 className={styles.pageTitle}>Your Activity</h1>
-      <Heatmap />
-		<AnimatePresence mode='popLayout'>
-      <div className={styles.cardList}>
-        {activityData.map((activity, i) => (
-          <div key={activity.id} className={styles.cardListItem}>
-            <MemoActivityCard activity={activity} index={i} />
+  const renderYouView = () => {
+    if (isLoading) return <p>Loading...</p>;
+    if (error) return <p>Error loading activity</p>;
+
+    return (
+      <motion.div key="you" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h1 className={styles.pageTitle}>Your Activity</h1>
+          {process.env.NODE_ENV === 'development' && (
+            <button 
+              onClick={async () => {
+                if (!confirm('Clear all check-ins? This cannot be undone.')) return;
+                try {
+                  const headers: HeadersInit = {};
+                  if (process.env.NODE_ENV === 'development') {
+                    headers['X-Test-User-Id'] = 'test-user-123';
+                  }
+                  const res = await fetch('/api/checkins', { method: 'DELETE', headers });
+                  if (res.ok) {
+                    queryClient.invalidateQueries({ queryKey: ['userLogs'] });
+                    setCheckinError(null);
+                  }
+                } catch (error) {
+                  console.error('Failed to clear checkins:', error);
+                }
+              }}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#E57373',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            >
+              Clear All
+            </button>
+          )}
+        </div>
+        <Heatmap />
+        <AnimatePresence mode='popLayout'>
+          <div className={styles.cardList}>
+            {userLogs?.map((activity: any, i: number) => (
+              <div key={activity.id} className={styles.cardListItem}>
+                <MemoActivityCard activity={activity} index={i} />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-		</AnimatePresence>
-    </motion.div>
-  );
+        </AnimatePresence>
+      </motion.div>
+    );
+  };
 
 
 
 
-  const activityData = [
-    { id: 1, thumbnail: 'https://dummyimage.com/120x120/3DD9D9/0F1419.png&text=W', title: 'Push Day', description: 'Chest, Shoulders, Triceps' },
-    { id: 2, thumbnail: 'https://dummyimage.com/120x120/E57373/0F1419.png&text=R', title: 'Active Recovery', description: 'Light walk and stretching' },
-    { id: 3, thumbnail: 'https://dummyimage.com/120x120/D4C5B0/0F1419.png&text=Ref', title: 'Reflection', description: 'Feeling a bit under the weather.' },
-    { id: 4, thumbnail: 'https://dummyimage.com/120x120/87CEEB/0F1419.png&text=C', title: 'Core Blast', description: 'Planks, leg raises, Russian twists' },
-    { id: 5, thumbnail: 'https://dummyimage.com/120x120/98FB98/0F1419.png&text=L', title: 'Leg Day', description: 'Squats, lunges, calf raises' },
-    { id: 6, thumbnail: 'https://dummyimage.com/120x120/FFA07A/0F1419.png&text=HIIT', title: 'HIIT Session', description: '20-min intervals, full-body' },
-    { id: 7, thumbnail: 'https://dummyimage.com/120x120/AFEEEE/0F1419.png&text=Y', title: 'Yoga Flow', description: 'Mobility and breathwork' },
-    { id: 8, thumbnail: 'https://dummyimage.com/120x120/BA55D3/0F1419.png&text=F', title: 'Functional', description: 'Kettlebell swings, box jumps' },
-    { id: 9, thumbnail: 'https://dummyimage.com/120x120/FFD700/0F1419.png&text=C', title: 'Cycling', description: '45-min endurance ride' },
-    { id: 10, thumbnail: 'https://dummyimage.com/120x120/40E0D0/0F1419.png&text=S', title: 'Swim', description: 'Technique and intervals' },
-  ];
+  const renderFeedView = () => {
+    if (feedLoading) return <p>Loading...</p>;
+    if (feedError) return <p>Error loading feed</p>;
 
-  const publicFeedData = [
-    { id: 1, user: 'Jane', thumbnail: 'https://dummyimage.com/120x120/3DD9D9/0F1419.png&text=W', title: 'Pull Day', description: 'Back and Biceps' },
-    { id: 2, user: 'John', thumbnail: 'https://dummyimage.com/120x120/D4C5B0/0F1419.png&text=R', title: 'Rest Day', description: 'Full day of rest and recovery.' },
-    { id: 3, user: 'Ava', thumbnail: 'https://dummyimage.com/120x120/87CEEB/0F1419.png&text=C', title: 'Core Blast', description: 'Pilates inspired core work' },
-    { id: 4, user: 'Liam', thumbnail: 'https://dummyimage.com/120x120/98FB98/0F1419.png&text=L', title: 'Leg Day', description: 'Heavy squats and accessories' },
-    { id: 5, user: 'Mia', thumbnail: 'https://dummyimage.com/120x120/FFA07A/0F1419.png&text=HIIT', title: 'HIIT Session', description: 'Short and spicy intervals' },
-    { id: 6, user: 'Noah', thumbnail: 'https://dummyimage.com/120x120/AFEEEE/0F1419.png&text=Y', title: 'Yoga Flow', description: 'Evening unwind sequence' },
-    { id: 7, user: 'Olivia', thumbnail: 'https://dummyimage.com/120x120/BA55D3/0F1419.png&text=F', title: 'Functional', description: 'EMOM kettlebell complex' },
-    { id: 8, user: 'Ethan', thumbnail: 'https://dummyimage.com/120x120/FFD700/0F1419.png&text=C', title: 'Cycling', description: 'Climb repeats' },
-    { id: 9, user: 'Sophia', thumbnail: 'https://dummyimage.com/120x120/40E0D0/0F1419.png&text=S', title: 'Swim', description: 'Drills + pull buoy set' },
-    { id: 10, user: 'Lucas', thumbnail: 'https://dummyimage.com/120x120/E6E6FA/0F1419.png&text=WU', title: 'Warm-up', description: 'Dynamic mobility and prep' },
-  ];
-
-
-  const renderFeedView = () => (
-    <motion.div key="feed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <h1 className={styles.pageTitle}>Public Feed</h1>
-      <div className={styles.cardList}>
-        {publicFeedData.map((activity, i) => (
-          <div key={activity.id} className={styles.cardListItem}>
-            <MemoActivityCard activity={activity} index={i} />
-          </div>
-        ))}
-      </div>
-    </motion.div>
-  );
+    return (
+      <motion.div key="feed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <h1 className={styles.pageTitle}>Public Feed</h1>
+        <div className={styles.cardList}>
+          {feedLogs?.map((activity: any, i: number) => (
+            <div key={activity.id} className={styles.cardListItem}>
+              <MemoActivityCard activity={activity} index={i} />
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    );
+  };
 
   return (
     <div className={styles.container}>
+      {checkinError && (
+        <div style={{ 
+          position: 'fixed', 
+          top: '16px', 
+          left: '50%', 
+          transform: 'translateX(-50%)', 
+          zIndex: 1000, 
+          padding: '12px 24px', 
+          backgroundColor: '#E57373', 
+          color: '#fff', 
+          borderRadius: '8px', 
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          maxWidth: '90%',
+          textAlign: 'center'
+        }}>
+          {checkinError}
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {activeView === 'You' ? renderYouView() : renderFeedView()}
       </AnimatePresence>
 
-      {isLogFlowOpen && <LogFlow onClose={() => setIsLogFlowOpen(false)} />}
+      {isLogFlowOpen && <LogFlow 
+        onClose={() => {
+          setIsLogFlowOpen(false);
+          queryClient.invalidateQueries({ queryKey: ['userLogs'] });
+        }} 
+      />}
       {isProfileViewOpen && <ProfileView onClose={() => setIsProfileViewOpen(false)} />}
 
       <div className={styles.bottomNav}>
@@ -113,7 +243,40 @@ const renderYouView = () => (
           <button ref={feedRef} className={styles.navItem} onClick={() => setActiveView('Feed')} style={{ color: activeView === 'Feed' ? '#0F1419' : '#9CA3AF' }}>Feed</button>
           <button ref={youRef} className={styles.navItem} onClick={() => setActiveView('You')} style={{ color: activeView === 'You' ? '#0F1419' : '#9CA3AF' }}>You</button>
         </div>
-        <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }} onClick={() => setIsLogFlowOpen(true)}>
+        <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }} onClick={async () => {
+          // Check if user already checked in today
+          try {
+            const headers: HeadersInit = {};
+            if (process.env.NODE_ENV === 'development') {
+              headers['X-Test-User-Id'] = 'test-user-123';
+            }
+            
+            const res = await fetch('/api/checkins', { headers });
+            if (res.ok) {
+              const data = await res.json();
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              
+              const hasCheckedInToday = data.checkins?.some((checkin: any) => {
+                const checkinDate = new Date(checkin.createdAt);
+                checkinDate.setHours(0, 0, 0, 0);
+                return checkinDate.getTime() === today.getTime();
+              });
+              
+              if (hasCheckedInToday) {
+                setCheckinError('You have already checked in today.');
+                setTimeout(() => setCheckinError(null), 3000); // Auto-dismiss after 3s
+                return; // Don't open LogFlow
+              } else {
+                setCheckinError(null);
+              }
+            }
+          } catch (error) {
+            // If check fails, allow them to try (server will validate)
+            setCheckinError(null);
+          }
+          setIsLogFlowOpen(true);
+        }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
