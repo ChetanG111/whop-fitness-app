@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     const { type, workoutKind, note, isPublic, photoId } = await request.json();
 
-    if (!type || !['WORKOUT', 'REST', 'MISSED'].includes(type)) {
+    if (!type || !['WORKOUT', 'REST', 'REFLECTION'].includes(type)) {
       return NextResponse.json({ message: 'Invalid check-in type.' }, { status: 400 });
     }
 
@@ -81,10 +81,10 @@ export async function POST(request: NextRequest) {
         });
         await updateTodayStats();
         break;
-      case 'MISSED':
+      case 'REFLECTION':
         checkin = await createCheckin({
           whopUserId,
-          type: CheckinType.MISSED,
+          type: CheckinType.REFLECTION,
           note,
         });
         break;

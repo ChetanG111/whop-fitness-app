@@ -1,0 +1,83 @@
+// Prisma schema for Whop Fitness Accountability App
+// This is the single source of truth for your database structure
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// USERS TABLE
+// ============================================
+// Stores Whop community members
+// Auto-created on first visit via /api/init-user
+model User {
+  whopUserId String   @id @map("whop_user_id") @db.VarChar(255)
+  name       String   @db.VarChar(255)
+  role       UserRole @default(MEMBER)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  checkins Checkin[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  MEMBER
+  COACH
+}
+
+// ============================================
+// CHECKINS TABLE
+// ============================================
+// Stores all daily check-ins (workout/rest/reflection)
+// Enforces: 1 check-in per user per day (server-side)
+model Checkin {
+  id          String      @id @default(cuid())
+  whopUserId  String      @map("whop_user_id") @db.VarChar(255)
+  type        CheckinType
+  muscleGroup String?     @map("muscle_group") @db.VarChar(50) // Required for WORKOUT type
+  note        String?     @db.Text // Optional emoji or short text
+  photoUrl    String?     @map("photo_url") @db.Text // Supabase Storage URL
+  sharedPhoto Boolean     @default(false) @map("shared_photo") // Public feed visibility
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [whopUserId], references: [whopUserId], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([whopUserId, createdAt])
+  @@index([type])
+  @@index([createdAt])
+  @@map("checkins")
+}
+
+enum CheckinType {
+  WORKOUT    // 🟩 Counts toward streak, requires muscle_group
+  REST       // 🔵 Counts toward streak
+  REFLECTION // 🟨 Does NOT count toward streak
+}
+
+// ============================================
+// COMMUNITY STATS TABLE
+// ============================================
+// Aggregated daily stats for coach dashboard
+// Updated via cron job or real-time trigger
+model CommunityStat {
+  id           String   @id @default(cuid())
+  date         DateTime @unique @db.Date
+  totalMembers Int      @map("total_members")
+  activeToday  Int      @map("active_today")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([date])
+  @@map("community_stats")
+}
