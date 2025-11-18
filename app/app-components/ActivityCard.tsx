@@ -1,3 +1,5 @@
+"use client";
+
 import AnimatedItem from './AnimatedList';
 import styles from './ActivityCard.module.css';
 

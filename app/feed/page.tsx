@@ -1,17 +1,17 @@
-import AnimatedList from '@/components/AnimatedList';
+import ActivityCard from '@/app/app-components/ActivityCard';
 
 export default function FeedPage() {
   const feedItems = [
-    'First item in the feed',
-    'Second item in the feed',
-    'Third item in the feed',
-    'Fourth item in the feed',
-    'Fifth item in the feed',
-    'Sixth item in the feed',
-    'Seventh item in the feed',
-    'Eighth item in the feed',
-    'Ninth item in the feed',
-    'Tenth item in the feed',
+    { id: 1, thumbnail: 'https://via.placeholder.com/150', title: 'Workout Session', description: 'Completed a 30-minute HIIT workout.' },
+    { id: 2, thumbnail: 'https://via.placeholder.com/150', title: 'Meal Prep', description: 'Prepared healthy meals for the week.' },
+    { id: 3, thumbnail: 'https://via.placeholder.com/150', title: 'Yoga Practice', description: 'Relaxing yoga session for flexibility.' },
+    { id: 4, thumbnail: 'https://via.placeholder.com/150', title: 'Running', description: 'Morning run, 5km in 25 minutes.' },
+    { id: 5, thumbnail: 'https://via.placeholder.com/150', title: 'Weight Training', description: 'Upper body strength training.' },
+    { id: 6, thumbnail: 'https://via.placeholder.com/150', title: 'Cycling', description: 'Evening bike ride, 10km.' },
+    { id: 7, thumbnail: 'https://via.placeholder.com/150', title: 'Meditation', description: '15 minutes of mindfulness meditation.' },
+    { id: 8, thumbnail: 'https://via.placeholder.com/150', title: 'Swimming', description: 'Laps in the pool for an hour.' },
+    { id: 9, thumbnail: 'https://via.placeholder.com/150', title: 'Hiking', description: 'Explored a new trail.' },
+    { id: 10, thumbnail: 'https://via.placeholder.com/150', title: 'Pilates', description: 'Core strengthening exercises.' },
   ];
 
   return (
@@ -20,7 +20,11 @@ export default function FeedPage() {
         <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">
           Your Feed
         </h1>
-        <AnimatedList items={feedItems} />
+        <div className="space-y-4">
+          {feedItems.map((activity, index) => (
+            <ActivityCard key={activity.id} activity={activity} index={index} />
+          ))}
+        </div>
       </div>
     </div>
   );
