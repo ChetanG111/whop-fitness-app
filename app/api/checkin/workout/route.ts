@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getTodayCheckin, createCheckin, checkPhotoCompliance, updateTodayStats, getUserByWhopId } from '@/lib/db-helpers';
-import { whopsdk } from '@/lib/whop-sdk';
+import { getTodayCheckin, createCheckin, updateTodayStats, getOrCreateUser } from '@/lib/db-helpers';
 import { CheckinType } from '@prisma/client';
 import { sanitize } from '@/lib/sanitize';
 
@@ -15,36 +14,11 @@ import { sanitize } from '@/lib/sanitize';
  */
 export async function POST(request: NextRequest) {
   try {
-    let whopUserId: string | null = null;
-    let userName: string = 'Test User'; // Default name for new users
-
-    if (process.env.NODE_ENV === 'development') {
-      whopUserId = request.headers.get('X-Test-User-Id');
-    } else {
-      const userId = request.headers.get('x-whop-user-id');
-      if (userId) {
-        try {
-          const user: any = await whopsdk.users.retrieve(userId);
-          whopUserId = userId;
-          if (user?.username || user?.name) {
-            userName = user.username || user.name;
-          }
-        } catch (error) {
-          console.error('Error verifying Whop user:', error);
-          return NextResponse.json({ message: 'Invalid Whop user' }, { status: 401 });
-        }
-      }
-    }
-
+    const whopUserId = request.headers.get('x-whop-user-id') || request.headers.get('X-Test-User-Id');
     if (!whopUserId) {
-      return NextResponse.json({ message: 'User ID not found. Provide X-Test-User-Id for testing.' }, { status: 400 });
+      return NextResponse.json({ message: 'Unauthorized: missing user id' }, { status: 401 });
     }
-
-    // Ensure user exists
-    const user = await getUserByWhopId(whopUserId);
-    if (!user) {
-      return NextResponse.json({ message: 'User not found. Please initialize user first.' }, { status: 404 });
-    }
+    const user = await getOrCreateUser(whopUserId, 'Member');
 
     const { muscleGroup, note, photoUrl, sharedPhoto, sharedNote } = await request.json();
 
@@ -57,11 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'You have already checked in today.' }, { status: 409 });
     }
 
-    // Photo compliance check
-    // const { compliant, photoCount } = await checkPhotoCompliance(whopUserId);
-    // if (!compliant && !photoUrl) {
-    //   return NextResponse.json({ message: `You need to upload a photo for this workout. You have ${photoCount} photos this week.` }, { status: 400 });
-    // }
+    // Photo compliance check intentionally skipped for MVP
 
     const checkin = await createCheckin({
       whopUserId,
