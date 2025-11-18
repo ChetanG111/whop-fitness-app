@@ -1,0 +1,384 @@
+{
+"profileName": "WorkoutLogIntegration",
+"version": "1.1",
+"description": "Machine- and human-readable instructions + tracked checklist for wiring the workout/rest/reflection logging flow from frontend to backend. Includes what to do when functionality exists, how to create missing pieces, and how to modify components to fit current needs. The embedded checklist (visible to user) is intended to be updated by the AI only when the user provides evidence (commit/PR link, test result, or explicit 'mark done').",
+"metadata": {
+"assumptions": [
+"Frontend is React (or React-like).",
+"Backend uses RESTful API routes or a unified /api/logs controller.",
+"Auth is available via cookie/session or bearer tokens.",
+"DB is Postgres (Supabase/Prisma stack) or equivalent."
+],
+"userFlowSummary": [
+"Plus button opens log flow.",
+"User picks: workout | rest | reflection.",
+"If workout, workoutKind selector (already implemented).",
+"Optional note & public toggle.",
+"Photo upload controls disabled for now.",
+"Log -> DB row created -> modal closes -> You page + Feed page show cards according to visibility."
+]
+},
+"database": {
+"recommendedSchema": {
+"table": "logs",
+"columns": {
+"id": "uuid PRIMARY KEY",
+"user_id": "uuid NOT NULL REFERENCES users(id)",
+"type": "text NOT NULL -- 'workout'|'rest'|'reflection'",
+"workout_kind": "text NULL",
+"note": "text NULL",
+"is_public": "boolean NOT NULL DEFAULT false",
+"photo_id": "uuid NULL",
+"created_at": "timestamptz NOT NULL DEFAULT now()",
+"updated_at": "timestamptz NULL"
+},
+"indexes": [
+"idx_logs_user_created_at (user_id, created_at DESC)",
+"idx_logs_is_public_created_at (is_public, created_at DESC)"
+]
+},
+"ifAlreadyExists": {
+"checkList": [
+"verify columns: is_public, workout_kind, photo_id exist",
+"ensure created_at uses timestamptz",
+"confirm proper foreign key to users"
+],
+"actionsIfMissing": [
+"create migration to add missing columns with sensible defaults (is_public default false)",
+"run migration in staging, smoke test, then prod"
+]
+}
+},
+"api": {
+"preferredRoutes": {
+"unified": "POST /api/logs",
+"specializedOptional": [
+"POST /api/logs/workout",
+"POST /api/logs/rest",
+"POST /api/logs/reflection"
+],
+"get": "GET /api/logs?userId=:id&limit=XX&visibility=public|private|all"
+},
+"payloadShape": {
+"required": ["type", "timestamp"],
+"optional": ["workoutKind", "note", "isPublic", "photoId"],
+"example": {
+"type": "workout",
+"workoutKind": "upper_body",
+"note": "optional string",
+"isPublic": true,
+"photoId": null,
+"timestamp": "2025-11-17T18:00:00.000Z"
+}
+},
+"backendResponsibilities": [
+"Authenticate and authorize user; return 401 if not authenticated.",
+"Validate payload types and required fields; return 400 on invalid input.",
+"Sanitize note (strip scripts / malicious input).",
+"Insert into logs table via ORM (Prisma/knex/pg).",
+"If isPublic true: mark log visibility (or insert into feed table) so feed query can pick it up.",
+"Return created object including id, created_at and a minimal user summary for feed rendering.",
+"Return appropriate status codes: 201 success, 400 validation, 401 auth, 500 server error."
+],
+"ifRoutesExist": {
+"verify": [
+"request body shape matches frontend payload",
+"auth method used by app (cookie/bearer) works with route",
+"response includes created log and user summary (id, name, avatarUrl)"
+],
+"adjust": [
+"add missing returned fields expected by frontend (e.g., user summary)",
+"change response status to 201 and include JSON body {log:..., user:...}"
+]
+},
+"ifRoutesMissing": {
+"createUnifiedRoute": [
+"implement POST /api/logs in the backend routing layer",
+"use auth userId from session instead of trusting userId sent from client",
+"validate type ∈ ['workout','rest','reflection']",
+"create DB row and return created object with user summary",
+"emit telemetry/error logs"
+],
+"specializedRoutesOption": [
+"implement POST /api/logs/{workout|rest|reflection} delegating to same controller logic if preferred"
+]
+}
+},
+"frontend": {
+"components": {
+"LogButton": {
+"purpose": "Plus button that opens LogModal",
+"props": ["onOpen"]
+},
+"LogModal": {
+"purpose": "Modal controlling selection and form steps",
+"internalState": ["open:boolean", "step:'select'|'form'", "selection:'workout'|'rest'|'reflection'"],
+"behavior": [
+"initial view: 3 option buttons",
+"after selection: show LogForm depending on selection"
+]
+},
+"LogForm": {
+"purpose": "Collect workoutKind (if applicable), note, public toggle, disabled photo controls, Log button",
+"inputs": ["workoutKind", "note", "isPublic", "timestamp (auto)"],
+"validation": ["note <= 500 chars"],
+"ux": [
+"disabled photo button with tooltip 'coming soon'",
+"show spinner on Log button while request in-flight"
+]
+},
+"YouFeedCard/GlobalFeedCard": {
+"propsExpectedFromAPI": ["id","userSummary","type","workout_kind","note","is_public","created_at"]
+}
+},
+"stateManagement": {
+"recommendation": "React Query for server-sync (mutations + cache invalidation). Local state for modal flow.",
+"mutationBehavior": {
+"optimisticUpdate": {
+"youList": "Insert optimistic entry into user 'you' cache immediately on submit.",
+"feedList": "Insert into feed cache only if isPublic === true (optimistically).",
+"rollback": "If mutation fails, remove optimistic entry and show an error toast."
+},
+"postSuccess": "Invalidate and refetch userLogs and feedLogs queries.",
+"onError": "Show error UI, keep modal open for retry."
+}
+},
+"ifFrontendAlreadyHasForm": {
+"verify": [
+"form state maps to API payload fields",
+"photo upload UI is disabled",
+"submit uses current auth session"
+],
+"modify": [
+"change submit handler to call unified POST /api/logs with correct payload",
+"add optimistic update and error rollback logic",
+"close modal only after server success (or use optimistic close with visible undo if desired)"
+]
+},
+"ifFrontendMissingForm": {
+"create": [
+"implement LogModal and LogForm as above",
+"use useMutation(postLog, {onMutate,onError,onSettled}) from React Query",
+"on success: push server object into caches and close modal"
+]
+}
+},
+"validation_and_security": {
+"serverSide": [
+"authenticate user; reject 401 when necessary",
+"authorize actions using session userId (do not trust client-supplied userId)",
+"sanitize note inputs using a sanitizer library",
+"consider rate limits if abuse is suspected"
+],
+"clientSide": [
+"limit note length",
+"disable Log button while request in progress",
+"show friendly mapped messages for 400/500 responses"
+]
+},
+"edgeCases_and_behaviors": {
+"duplicateSubmission": "disable Log button on click; optionally use idempotency tokens",
+"networkFailure": "rollback optimistic update; show retry CTA",
+"timezone": "send ISO timestamp from client but server should store timestamptz",
+"visibilityChange": "implement PATCH /api/logs/:id to update is_public and update feed caches on success"
+},
+"tests": {
+"unitTests": [
+"API validation returns 400 for missing/invalid fields",
+"DB insertion stores correct type and visibility",
+"unauthenticated request returns 401"
+],
+"integrationTests": [
+"Full flow: frontend posts -> server returns object -> you & feed show card when public",
+"Optimistic rollback: simulate 500 and ensure optimistic card removed and error shown"
+],
+"manualChecks": [
+"log workout with and without workoutKind",
+"confirm rest/reflection logs ignore or disallow workoutKind",
+"confirm photo button disabled"
+]
+},
+"deployment_and_migration": {
+"migrations": [
+"create migration for missing columns (is_public, workout_kind, photo_id)",
+"run in staging, smoke test, then run in production"
+],
+"rollout": [
+"deploy backend changes and DB migration together (blue/green or feature-flag if possible)",
+"deploy frontend referring to new routes; keep compatibility if older routes remain for a short time"
+]
+},
+"operationalNotes": {
+"observability": [
+"log API request/response status counts",
+"track metrics: logs created/day, public vs private ratio"
+],
+"rollbackPlan": "revert code first; if DB migration is destructive, prepare a reverse migration",
+"todos": [
+"enable photo uploads later via pre-signed uploads or separate multipart endpoint",
+"add PATCH /api/logs/:id for edits and visibility toggles",
+"add DELETE /api/logs/:id"
+]
+},
+"checklist": {
+"description": "User-visible, AI-trackable checklist. The AI will update statuses only when the user provides explicit evidence (commit/PR link, CI result, test output) or when the user instructs the AI to mark an item done. The AI will never claim to update the checklist autonomously by monitoring external systems.",
+"visibilityToUser": true,
+"items": [
+{
+"id": "C1",
+"title": "Verify DB schema contains required columns",
+"description": "Confirm logs table has columns: type, workout_kind, note, is_public, photo_id, created_at.",
+"dependencies": [],
+"status": "todo",
+"assignee": "backend",
+"acceptanceCriteria": "SHOW CREATE TABLE / migration diff or DB schema screenshot provided."
+},
+{
+"id": "C2",
+"title": "Add DB migration if columns missing",
+"description": "Create and run migration to add missing columns with defaults. Stage first.",
+"dependencies": ["C1"],
+"status": "todo",
+"assignee": "backend",
+"acceptanceCriteria": "migration file present & staging run succeeded (provide migration diff or staging logs)."
+},
+{
+"id": "C3",
+"title": "Verify or create POST /api/logs route",
+"description": "Ensure unified POST /api/logs exists and returns created log with user summary. If missing, implement it.",
+"dependencies": ["C1"],
+"status": "todo",
+"assignee": "backend",
+"acceptanceCriteria": "API contract matches payloadShape and returns 201 with body {log, user} (curl/insomnia response provided)."
+},
+{
+"id": "C4",
+"title": "Adjust existing specialized routes (if present)",
+"description": "If backend uses /api/logs/workout etc., ensure they delegate to same controller and return consistent response shape.",
+"dependencies": ["C3"],
+"status": "todo",
+"assignee": "backend",
+"acceptanceCriteria": "All three routes return identical response schema and pass integration test."
+},
+{
+"id": "C5",
+"title": "Implement frontend LogModal & LogForm (if missing)",
+"description": "Create modal flow: select -> form -> submit. Photo controls disabled.",
+"dependencies": [],
+"status": "todo",
+"assignee": "frontend",
+"acceptanceCriteria": "Modal present in UI and can reach submit handler (screenshot or test video)."
+},
+{
+"id": "C6",
+"title": "Map form state to API payload and integrate mutation",
+"description": "Wire submit handler to POST /api/logs (use auth from session). Use React Query mutation with optimistic update.",
+"dependencies": ["C3","C5"],
+"status": "todo",
+"assignee": "frontend",
+"acceptanceCriteria": "Submit a test payload and receive 201; optimistic card appears immediately and final card persists on success (provide network trace)."
+},
+{
+"id": "C7",
+"title": "Disable/tooltip photo upload buttons",
+"description": "Ensure photo buttons are visible but disabled with tooltip 'coming soon'.",
+"dependencies": ["C5"],
+"status": "todo",
+"assignee": "frontend",
+"acceptanceCriteria": "UI screenshot showing disabled button + tooltip text."
+},
+{
+"id": "C8",
+"title": "Optimistic update & rollback logic",
+"description": "Implement optimistic insertion into 'you' list and feed (if public) with rollback on error.",
+"dependencies": ["C6"],
+"status": "todo",
+"assignee": "frontend",
+"acceptanceCriteria": "Simulate server 500 and show rollback behavior (recorded test or CI integration test)."
+},
+{
+"id": "C9",
+"title": "Invalidate/refetch queries on success",
+"description": "After mutation success, invalidate userLogs and feedLogs queries to get canonical server data.",
+"dependencies": ["C6"],
+"status": "todo",
+"assignee": "frontend",
+"acceptanceCriteria": "Network trace shows refetch and UI reflects server-canonical data."
+},
+{
+"id": "C10",
+"title": "Unit & integration tests",
+"description": "Add API unit tests for validation & DB insertion; add integration test for full flow.",
+"dependencies": ["C3","C6"],
+"status": "todo",
+"assignee": "backend/frontend",
+"acceptanceCriteria": "CI passes tests and test artifacts or coverage report attached."
+},
+{
+"id": "C11",
+"title": "Staging deploy & smoke test",
+"description": "Deploy backend + migrations and frontend to staging and run smoke tests.",
+"dependencies": ["C2","C3","C6","C10"],
+"status": "todo",
+"assignee": "ops",
+"acceptanceCriteria": "staging URL and smoke test results provided."
+},
+{
+"id": "C12",
+"title": "Production deploy",
+"description": "Deploy to production with appropriate rollout strategy.",
+"dependencies": ["C11"],
+"status": "todo",
+"assignee": "ops",
+"acceptanceCriteria": "production URL and post-deploy health checks provided."
+},
+{
+"id": "C13",
+"title": "Manual QA checklist",
+"description": "Run manual checks: create workout, rest, reflection; confirm card creation in You + Feed; verify visibility toggle.",
+"dependencies": ["C11"],
+"status": "todo",
+"assignee": "qa",
+"acceptanceCriteria": "QA report with screenshots for all cases."
+}
+],
+"aiUpdateInstructions": "The AI will update item status only when the user provides: 1) a commit/PR link that references the checklist item ID, 2) a CI pass artifact or test output for the item, 3) a staging/prod URL + screenshot demonstrating the change, or 4) the user's explicit instruction 'mark <ID> done'. The AI will not perform background checks or claim updates without user-provided evidence. When updating, the AI will add a short audit entry with {timestamp_iso, evidence: <link/text>, actor: 'user'|'ci'|'ai'}. To request a status update, the user must provide one of the accepted evidence types or say 'mark <ID> status'."
+},
+"sampleImplementationSnippets": {
+"clientPayloadExample": {
+"type": "workout",
+"workoutKind": "upper_body",
+"note": "felt great today",
+"isPublic": true,
+"photoId": null,
+"timestamp": "2025-11-17T18:00:00.000Z"
+},
+"successResponseExample": {
+"status": 201,
+"body": {
+"log": {
+"id": "uuid",
+"user_id": "uuid",
+"type": "workout",
+"workout_kind": "upper_body",
+"note": "optional",
+"is_public": true,
+"photo_id": null,
+"created_at": "2025-11-17T18:00:00.000Z"
+},
+"user": {
+"id": "uuid",
+"name": "Chetan Gonuguntla",
+"avatarUrl": "/avatars/..."
+}
+}
+}
+},
+"notesForAI": {
+"restrictions": [
+"Do not mark checklist items done without explicit evidence from the user as described in checklist.aiUpdateInstructions.",
+"Do not perform background polling of external systems to update checklist statuses."
+],
+"howToShowChecklistToUser": "When asked, return the checklist items and current statuses. If the user provides evidence, update the matching item and append an audit entry."
+}
+}

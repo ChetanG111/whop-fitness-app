@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import styles from './page.module.css';
@@ -8,6 +8,11 @@ import styles from './page.module.css';
 import Heatmap from '../../app-components/Heatmap';
 import LogFlow from '../../app-components/LogFlow';
 import ProfileView from '../../app-components/ProfileView';
+
+import ActivityCard from '../../app-components/ActivityCard';
+
+// Memoize to prevent unnecessary re-renders
+const MemoActivityCard = memo(ActivityCard);
 
 const YourActivityPage = () => {
   const [activeView, setActiveView] = useState('You');
@@ -27,7 +32,22 @@ const YourActivityPage = () => {
       });
     }
   }, [activeView]);
-
+  
+const renderYouView = () => (
+    <motion.div key="you" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <h1 className={styles.pageTitle}>Your Activity</h1>
+      <Heatmap />
+		<AnimatePresence mode='popLayout'>
+      <div className={styles.cardList}>
+        {activityData.map((activity, i) => (
+          <div key={activity.id} className={styles.cardListItem}>
+            <MemoActivityCard activity={activity} index={i} />
+          </div>
+        ))}
+      </div>
+		</AnimatePresence>
+    </motion.div>
+  );
 
 
 
@@ -58,76 +78,15 @@ const YourActivityPage = () => {
     { id: 10, user: 'Lucas', thumbnail: 'https://dummyimage.com/120x120/E6E6FA/0F1419.png&text=WU', title: 'Warm-up', description: 'Dynamic mobility and prep' },
   ];
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 8 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.05,
-        duration: 0.18,
-        ease: 'easeOut' as const,
-      },
-    }),
-  };
-
-
-
-  const renderYouView = () => {
-    // Calculate date range for ~1 month of data (35 days to show 5 weeks)
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 34);
-
-    return (
-      <motion.div key="you" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <h1 className={styles.pageTitle}>Your Activity</h1>
-        <h2 className={styles.sectionLabel}>This Year</h2>
-        <Heatmap />
-        <h2 className={`${styles.sectionLabel} ${styles.sectionLabelTopPad}`}>Recent Check-ins</h2>
-        <div className={styles.cardList}>
-          {activityData.map((activity, i) => (
-            <motion.div
-              key={activity.id}
-              className={styles.activityCard}
-              custom={i}
-              initial="hidden"
-              animate="visible"
-              variants={cardVariants}
-              whileTap={{ scale: 0.97, opacity: 0.85 }}
-            >
-              <img src={activity.thumbnail} alt={activity.title} className={styles.thumbnail} />
-              <div className={styles.content}>
-                <h3 className={styles.cardTitle}>{activity.title}</h3>
-                <p className={styles.cardDescription}>{activity.description}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    );
-  };
 
   const renderFeedView = () => (
     <motion.div key="feed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <h1 className={styles.pageTitle}>Public Feed</h1>
       <div className={styles.cardList}>
         {publicFeedData.map((activity, i) => (
-          <motion.div
-            key={activity.id}
-            className={styles.activityCard}
-            custom={i}
-            initial="hidden"
-            animate="visible"
-            variants={cardVariants}
-            whileTap={{ scale: 0.97, opacity: 0.85 }}
-          >
-            <img src={activity.thumbnail} alt={activity.title} className={styles.thumbnail} />
-            <div className={styles.content}>
-              <h3 className={styles.cardTitle}>{activity.user}'s {activity.title}</h3>
-              <p className={styles.cardDescription}>{activity.description}</p>
-            </div>
-          </motion.div>
+          <div key={activity.id} className={styles.cardListItem}>
+            <MemoActivityCard activity={activity} index={i} />
+          </div>
         ))}
       </div>
     </motion.div>
