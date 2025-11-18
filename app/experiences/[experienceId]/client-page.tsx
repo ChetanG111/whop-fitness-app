@@ -15,7 +15,11 @@ import ActivityCard from '../../app-components/ActivityCard';
 // Memoize to prevent unnecessary re-renders
 const MemoActivityCard = memo(ActivityCard);
 
-const YourActivityPage = () => {
+interface YourActivityPageProps {
+  userId: string | null;
+}
+
+const YourActivityPage = ({ userId }: YourActivityPageProps) => {
   const [activeView, setActiveView] = useState('You');
   const [pillStyle, setPillStyle] = useState({});
   const feedRef = useRef<HTMLButtonElement>(null);
@@ -26,11 +30,13 @@ const YourActivityPage = () => {
   const queryClient = useQueryClient();
 
   const { data: userLogs, isLoading, error } = useQuery({
-    queryKey: ['userLogs'],
+    queryKey: ['userLogs', userId],
     queryFn: async () => {
       const headers: HeadersInit = {};
       if (process.env.NODE_ENV === 'development') {
         headers['X-Test-User-Id'] = 'test-user-123';
+      } else if (userId) {
+        headers['x-whop-user-id'] = userId;
       }
       
       const res = await fetch('/api/checkins', { headers });
@@ -70,11 +76,13 @@ const YourActivityPage = () => {
   });
 
   const { data: feedLogs, isLoading: feedLoading, error: feedError } = useQuery({
-    queryKey: ['feedLogs'],
+    queryKey: ['feedLogs', userId],
     queryFn: async () => {
       const headers: HeadersInit = {};
       if (process.env.NODE_ENV === 'development') {
         headers['X-Test-User-Id'] = 'test-user-123';
+      } else if (userId) {
+        headers['x-whop-user-id'] = userId;
       }
       
       const res = await fetch('/api/feed', { headers });
