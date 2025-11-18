@@ -288,13 +288,17 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
         </AnimatePresence>
       </div>
 
-      {isLogFlowOpen && <LogFlow 
-        onClose={() => {
-          setIsLogFlowOpen(false);
-          queryClient.invalidateQueries({ queryKey: ['userLogs'] });
-        }} 
-      />}
-      {isProfileViewOpen && <ProfileView onClose={() => setIsProfileViewOpen(false)} />}
+      <AnimatePresence>
+        {isLogFlowOpen && <LogFlow 
+          onClose={() => {
+            setIsLogFlowOpen(false);
+            queryClient.invalidateQueries({ queryKey: ['userLogs'] });
+          }} 
+        />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {isProfileViewOpen && <ProfileView onClose={() => setIsProfileViewOpen(false)} />}
+      </AnimatePresence>
 
       <div className={styles.bottomNav}>
         <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }} onClick={() => setIsProfileViewOpen(true)}>
@@ -308,40 +312,32 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
           <button ref={feedRef} className={styles.navItem} onClick={() => { setDirection(-1); setActiveView('Feed'); }} style={{ color: activeView === 'Feed' ? '#0F1419' : '#9CA3AF' }}>Feed</button>
           <button ref={youRef} className={styles.navItem} onClick={() => { setDirection(1); setActiveView('You'); }} style={{ color: activeView === 'You' ? '#0F1419' : '#9CA3AF' }}>You</button>
         </div>
-        <motion.button className={styles.navIcon} whileTap={{ scale: 0.9, opacity: 0.8 }} onClick={async () => {
-          // Check if user already checked in today
-          try {
-            const headers: HeadersInit = {};
-            if (process.env.NODE_ENV === 'development') {
-              headers['X-Test-User-Id'] = 'test-user-123';
-            }
-            
-            const res = await fetch('/api/checkins', { headers });
-            if (res.ok) {
-              const data = await res.json();
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-              
-              const hasCheckedInToday = data.checkins?.some((checkin: any) => {
-                const checkinDate = new Date(checkin.createdAt);
-                checkinDate.setHours(0, 0, 0, 0);
-                return checkinDate.getTime() === today.getTime();
-              });
-              
-              if (hasCheckedInToday) {
-                setCheckinError('You have already checked in today.');
-                setTimeout(() => setCheckinError(null), 3000); // Auto-dismiss after 3s
-                return; // Don't open LogFlow
-              } else {
-                setCheckinError(null);
+        <motion.button
+          className={styles.navIcon}
+          whileTap={{ scale: 0.9, opacity: 0.8 }}
+          onClick={async () => {
+            try {
+              const headers: HeadersInit = {};
+              if (process.env.NODE_ENV === 'development') {
+                headers['X-Test-User-Id'] = 'test-user-123';
               }
+              
+              const res = await fetch('/api/checkins/status', { headers });
+              if (res.ok) {
+                const data = await res.json();
+                if (data.hasCheckedIn) {
+                  setCheckinError('You have already checked in today.');
+                  setTimeout(() => setCheckinError(null), 3000);
+                  return;
+                }
+              }
+            } catch (error) {
+              console.error("Failed to check check-in status:", error);
+              // Allow user to proceed if check fails, server will validate
             }
-          } catch (error) {
-            // If check fails, allow them to try (server will validate)
-            setCheckinError(null);
-          }
-          setIsLogFlowOpen(true);
-        }}>
+            setIsLogFlowOpen(true);
+          }}
+        >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>

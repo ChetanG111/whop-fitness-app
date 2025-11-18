@@ -1,15 +1,16 @@
 /* Based on design/logflow.json */
 .modalBackdrop {
   position: fixed;
-  top: 0;
+  top: 0; /* Keep top 0 for animation start */
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100vh; /* Full height for animation */
   background-color: #0f1620; /* Full page background */
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end; /* Align content to bottom for slide-up */
   z-index: 1000;
+  overflow: hidden; /* Hide content outside bounds during animation */
 }
 
 .modalContent {
@@ -18,8 +19,8 @@
   border-radius: 0; /* No border radius for full page */
   width: 100%;
   max-width: 100%;
-  height: 100%;
-  max-height: 100%;
+  height: 95vh; /* Take up 95% of viewport height */
+  max-height: 95vh; /* Ensure it doesn't exceed 95% */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -30,12 +31,17 @@
 
 .closeButton {
   position: absolute;
-  top: 20px;
-  left: 20px; /* Changed from right to left */
+  top: 24px;
+  left: 24px;
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.92);
   cursor: pointer;
+  width: 48px; /* Set fixed size */
+  height: 48px; /* Set fixed size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 1001;
 }
 

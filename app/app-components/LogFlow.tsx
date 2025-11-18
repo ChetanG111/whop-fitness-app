@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import styles from './LogFlow.module.css';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 
 interface LogFlowProps {
   onClose: () => void;
@@ -122,9 +123,30 @@ const LogFlow = ({ onClose, initialError }: LogFlowProps) => {
         </div>
       )}
       <div className={styles.stack}>
-        <button className={styles.button} onClick={() => handleSelection('Workout')}>Workout</button>
-        <button className={styles.button} onClick={() => handleSelection('Rest')}>Rest</button>
-        <button className={styles.button} onClick={() => handleSelection('Reflect')}>Reflect</button>
+        <motion.button
+          className={styles.button}
+          onClick={() => handleSelection('Workout')}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Workout
+        </motion.button>
+        <motion.button
+          className={styles.button}
+          onClick={() => handleSelection('Rest')}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Rest
+        </motion.button>
+        <motion.button
+          className={styles.button}
+          onClick={() => handleSelection('Reflect')}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Reflect
+        </motion.button>
       </div>
       <div className={styles.pageDots}>
         <span className={`${styles.dot} ${styles.activeDot}`}></span>
@@ -157,21 +179,31 @@ const LogFlow = ({ onClose, initialError }: LogFlowProps) => {
         </div>
       </div>
       <div className={styles.footer}>
-        <button className={styles.navArrow} onClick={() => setStep(0)}>
+        <motion.button
+          className={styles.navArrow}
+          onClick={() => setStep(0)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </button>
+        </motion.button>
         <div className={styles.pageDots}>
           <span className={styles.dot}></span>
           <span className={`${styles.dot} ${styles.activeDot}`}></span>
           <span className={styles.dot}></span>
         </div>
-        <button className={styles.fab} onClick={() => setStep(2)}>
+        <motion.button
+          className={styles.fab}
+          onClick={() => setStep(2)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </button>
+        </motion.button>
       </div>
     </div>
   );
@@ -211,20 +243,32 @@ const LogFlow = ({ onClose, initialError }: LogFlowProps) => {
           <span>Public Photo</span>
           <div className={`${styles.toggle} ${isPublicPhoto ? styles.toggleOn : ''}`} onClick={() => setIsPublicPhoto(!isPublicPhoto)}></div>
         </div>
-        <button className={styles.button} onClick={() => fileInputRef.current?.click()}>Upload Photo</button>
+        <motion.button
+          className={styles.button}
+          onClick={() => fileInputRef.current?.click()}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Upload Photo
+        </motion.button>
       </div>
       <div className={styles.footer}>
-        <button className={styles.navArrow} onClick={() => setStep(1)}>
+        <motion.button
+          className={styles.navArrow}
+          onClick={() => setStep(1)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </button>
+        </motion.button>
         <div className={styles.pageDots}>
             <span className={styles.dot}></span>
             <span className={styles.dot}></span>
             <span className={`${styles.dot} ${styles.activeDot}`}></span>
         </div>
-        <button
+        <motion.button
           className={styles.primaryMini}
           onClick={() => {
             const payload: any = {
@@ -243,9 +287,11 @@ const LogFlow = ({ onClose, initialError }: LogFlowProps) => {
             logMutation.mutate(payload);
           }}
           disabled={logMutation.isPending}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           {logMutation.isPending ? 'Logging...' : 'Log'}
-        </button>
+        </motion.button>
       </div>
     </div>
   );
@@ -253,16 +299,27 @@ const LogFlow = ({ onClose, initialError }: LogFlowProps) => {
   const screens = [renderSelectionScreen(), renderDetailNoteScreen(), renderPhotoScreen()];
 
   return (
-    <div className={styles.modalBackdrop}>
+    <motion.div
+      className={styles.modalBackdrop}
+      initial={{ y: "100%" }}
+      animate={{ y: 0 }}
+      exit={{ y: "100%" }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+    >
       <div className={styles.modalContent}>
-        <button className={styles.closeButton} onClick={onClose}>
+        <motion.button
+          className={styles.closeButton}
+          onClick={onClose}
+          whileHover={{ scale: 1.1, rotate: 90 }}
+          whileTap={{ scale: 0.9, rotate: 0 }}
+        >
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </button>
+        </motion.button>
         {screens[step]}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './ProfileView.module.css';
+import { motion } from 'framer-motion';
 
 interface ProfileViewProps {
   onClose: () => void;
@@ -18,10 +19,24 @@ const ProfileView = ({ onClose, initialName = '', initialGoals = '' }: ProfileVi
   };
 
   return (
-    <div className={styles.container}>
-      <button className={styles.closeButton} onClick={onClose} aria-label="Close">
-        &times;
-      </button>
+    <motion.div
+      className={styles.container}
+      initial={{ y: "100%" }}
+      animate={{ y: 0 }}
+      exit={{ y: "100%" }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+    >
+      <motion.button
+        className={styles.closeButton}
+        onClick={onClose}
+        aria-label="Close"
+        whileHover={{ scale: 1.1, rotate: 90 }}
+        whileTap={{ scale: 0.9, rotate: 0 }}
+      >
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </motion.button>
       <div className={styles.formGroup}>
         <input
           type="text"
@@ -36,11 +51,16 @@ const ProfileView = ({ onClose, initialName = '', initialGoals = '' }: ProfileVi
           value={goals}
           onChange={(e) => setGoals(e.target.value)}
         />
-        <button className={styles.submitButton} onClick={handleSave}>
+        <motion.button
+          className={styles.submitButton}
+          onClick={handleSave}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
           Save
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

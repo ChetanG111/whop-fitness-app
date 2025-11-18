@@ -2,19 +2,21 @@
 
 .container {
   position: fixed;
-  top: 0;
+  top: 0; /* Keep top 0 for animation start */
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100vh; /* Full height for animation */
   background-color: #0f1419;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 48px;
+  justify-content: flex-start; /* Align content to top for padding */
+  padding: 48px; /* Keep padding for content inside */
+  padding-top: calc(5vh + 48px); /* Adjust padding-top to account for 5vh space */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   box-sizing: border-box;
   z-index: 1000;
+  overflow-y: auto; /* Allow scrolling if content exceeds height */
 }
 
 .closeButton {
@@ -25,8 +27,12 @@
   border: none;
   color: #ffffff;
   cursor: pointer;
-  font-size: 32px;
-  line-height: 1;
+  width: 48px; /* Set fixed size */
+  height: 48px; /* Set fixed size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001; /* Ensure it's above other content */
 }
 
 .formGroup {
