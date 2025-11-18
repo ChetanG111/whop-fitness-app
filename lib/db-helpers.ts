@@ -8,7 +8,7 @@
  */
 
 import { prisma } from './prisma'
-import type { CheckinType, UserRole } from '@prisma/client'
+import { CheckinType, UserRole } from '@prisma/client'
 
 // ============================================
 // USER OPERATIONS
@@ -103,7 +103,7 @@ export async function createCheckin(data: {
       photoUrl: data.photoUrl,
       sharedPhoto: data.sharedPhoto ?? false,
       sharedNote: data.sharedNote ?? false,
-    },
+    } as any,
   })
 }
 
@@ -126,13 +126,13 @@ export async function getPublicFeedCheckins(limit = 50) {
   return await prisma.checkin.findMany({
     where: {
       OR: [
-        { sharedNote: true }, // Any check-in with public note enabled
+        { sharedNote: true } as any, // Any check-in with public note enabled
         {
           type: {
-            in: ['WORKOUT', 'REST'],
+            in: [CheckinType.WORKOUT, CheckinType.REST],
           },
-          sharedPhoto: true, // WORKOUT/REST with public photo
-        },
+          sharedPhoto: true,
+        } as any, // WORKOUT/REST with public photo
       ],
     },
     include: {
@@ -163,7 +163,7 @@ export async function checkPhotoCompliance(whopUserId: string) {
   const photosInLastWeek = await prisma.checkin.count({
     where: {
       whopUserId,
-      type: 'WORKOUT',
+      type: CheckinType.WORKOUT,
       photoUrl: {
         not: null,
       },
@@ -192,7 +192,7 @@ export async function calculateStreak(whopUserId: string) {
     where: {
       whopUserId,
       type: {
-        in: ['WORKOUT', 'REST'],
+        in: [CheckinType.WORKOUT, CheckinType.REST],
       },
     },
     orderBy: { createdAt: 'desc' },
@@ -260,7 +260,7 @@ export async function updateTodayStats() {
     by: ['whopUserId'],
     where: {
       type: {
-        in: ['WORKOUT', 'REST'],
+        in: [CheckinType.WORKOUT, CheckinType.REST],
       },
       createdAt: {
         gte: startOfDay,

@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { updateTodayStats } from '@/lib/db-helpers';
+import { updateTodayStats, getOrCreateUser, getUserCheckins } from '@/lib/db-helpers';
 
 /**
  * GET /api/checkins
@@ -13,31 +13,23 @@ import { updateTodayStats } from '@/lib/db-helpers';
  */
 export async function GET(request: NextRequest) {
   try {
-    let whopUserId: string | null = null;
-
-    if (process.env.NODE_ENV === 'development') {
-      whopUserId = request.headers.get('X-Test-User-Id');
-    } else {
-      whopUserId = request.headers.get('x-whop-user-id');
-    }
+    // Get user ID from headers
+    const whopUserId = request.headers.get('x-whop-user-id') || request.headers.get('X-Test-User-Id');
 
     if (!whopUserId) {
-      return NextResponse.json({ message: 'User ID not found.' }, { status: 400 });
+      return NextResponse.json({ message: 'User ID not found.' }, { status: 401 });
     }
 
-    const checkins = await prisma.checkin.findMany({
-      where: {
-        whopUserId: whopUserId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    // Ensure user exists in database
+    await getOrCreateUser(whopUserId, 'User', 'MEMBER');
+
+    // Get user's check-ins
+    const checkins = await getUserCheckins(whopUserId, 100);
 
     return NextResponse.json({ checkins });
   } catch (error) {
     console.error('Error in /api/checkins GET:', error);
-    return NextResponse.json({ message: 'An internal server error occurred' }, { status: 500 });
+    return NextResponse.json({ message: 'An internal server error occurred', error: String(error) }, { status: 500 });
   }
 }
 

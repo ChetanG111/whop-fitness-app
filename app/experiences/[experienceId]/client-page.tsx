@@ -20,7 +20,7 @@ interface YourActivityPageProps {
 }
 
 const YourActivityPage = ({ userId }: YourActivityPageProps) => {
-  const [activeView, setActiveView] = useState('You');
+	const [activeView, setActiveView] = useState('You');
   const [pillStyle, setPillStyle] = useState({});
   const feedRef = useRef<HTMLButtonElement>(null);
   const youRef = useRef<HTMLButtonElement>(null);
@@ -29,16 +29,14 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
   const [checkinError, setCheckinError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: userLogs, isLoading, error } = useQuery({
+  const { data: userLogs, isLoading, error: userLogsError } = useQuery({
     queryKey: ['userLogs', userId],
     queryFn: async () => {
       const headers: HeadersInit = {};
       if (process.env.NODE_ENV === 'development') {
         headers['X-Test-User-Id'] = 'test-user-123';
-      } else if (userId) {
-        headers['x-whop-user-id'] = userId;
-      }
-      
+      } 
+
       const res = await fetch('/api/checkins', { headers });
       if (!res.ok) {
         throw new Error('Failed to fetch user logs');
@@ -73,6 +71,7 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
         };
       });
     },
+	 enabled: !!userId || process.env.NODE_ENV === 'development',
   });
 
   const { data: feedLogs, isLoading: feedLoading, error: feedError } = useQuery({
@@ -81,10 +80,8 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
       const headers: HeadersInit = {};
       if (process.env.NODE_ENV === 'development') {
         headers['X-Test-User-Id'] = 'test-user-123';
-      } else if (userId) {
-        headers['x-whop-user-id'] = userId;
-      }
-      
+      } 
+            // Note: In production, Whop automatically adds x-whop-user-id header
       const res = await fetch('/api/feed', { headers });
       if (!res.ok) {
         throw new Error('Failed to fetch feed');
@@ -119,6 +116,7 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
         };
       });
     },
+	     enabled: !!userId || process.env.NODE_ENV === 'development', // Only run query if we have a userId
   });
 
   useEffect(() => {
@@ -133,7 +131,7 @@ const YourActivityPage = ({ userId }: YourActivityPageProps) => {
   
   const renderYouView = () => {
     if (isLoading) return <p>Loading...</p>;
-    if (error) return <p>Error loading activity</p>;
+    if (userLogsError) return <p>Error loading activity: {(userLogsError as Error).message}</p>;
 
     return (
       <motion.div key="you" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
