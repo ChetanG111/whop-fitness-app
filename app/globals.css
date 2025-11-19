@@ -8,9 +8,37 @@
 /* biome-ignore lint/suspicious/noUnknownAtRules: this rule is imported from whop */
 @config '../tailwind.config.ts';
 
+:root {
+  /* Onyx & Frost Palette */
+  --bg-app: #000000;
+  --bg-modal: #09090b;
+  --bg-surface: #18181b;
+  --border-subtle: #27272a;
+  
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  
+  --accent-primary: #ffffff;
+  --accent-on-primary: #000000;
+  --accent-secondary: #27272a; /* Zinc 800 for subtle interactions */
+
+  /* Status Colors (Muted/Premium) */
+  --status-error: #7f1d1d; /* Deep Red */
+  --status-error-text: #fecaca;
+  --status-success: #14532d; /* Deep Green */
+  --status-success-text: #bbf7d0;
+
+  /* Heatmap Palette (Monochrome/Frost) */
+  --heatmap-l0: #18181b; /* Matches bg-surface */
+  --heatmap-l1: #3f3f46; /* Zinc 700 */
+  --heatmap-l2: #71717a; /* Zinc 500 */
+  --heatmap-l3: #d4d4d8; /* Zinc 300 */
+  --heatmap-l4: #ffffff; /* White */
+}
+
 body {
-	background: var(--background);
-	color: var(--foreground);
+	background: var(--bg-app);
+	color: var(--text-primary);
 	font-family: Arial, Helvetica, sans-serif;
 }
 

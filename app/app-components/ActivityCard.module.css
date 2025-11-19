@@ -5,8 +5,9 @@
   gap: 13px; /* Reduced from 16px by ~20% */
   padding: 16px; /* Reduced from 20px by 20% */
   border-radius: 16px;
-  background-color: #1A2332;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background-color: var(--bg-surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-subtle);
 }
 
 .thumbnail {
@@ -26,12 +27,12 @@
 .cardTitle {
   font-size: 24px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--text-primary);
 }
 
 .cardDescription {
   font-size: 16px;
   font-weight: 400;
-  color: #9CA3AF;
+  color: var(--text-secondary);
   line-height: 1.5;
 }

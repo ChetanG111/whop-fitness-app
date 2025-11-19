@@ -11,16 +11,16 @@
     (7 * var(--cell-size)) + (6 * var(--gap)) + var(--label-row-height) + var(--label-gap)
   );
 
-  /* -- Colors (4-Level Neon Palette) -- */
-  --bg-primary: #0f1419; /* A dark background for the container */
-  --text-color: #c9d1d9;
-  --border-color: #30363d;
+  /* -- Colors (Onyx & Frost Palette) -- */
+  --bg-primary: var(--bg-modal);
+  --text-color: var(--text-secondary);
+  --border-color: var(--border-subtle);
   
-  /* Level names from design doc: ghosted-default, workedout-first-neon, rest-2nd-neon, missed-3rd-neon */
-  --level-0: #1A2332;
-  --level-3: #163C5A;
-  --level-2: #1E5FA8;
-  --level-1: #4CA9FF;
+  /* Level names mapped to global heatmap variables */
+  --level-0: var(--heatmap-l0);
+  --level-1: var(--heatmap-l1);
+  --level-2: var(--heatmap-l2);
+  --level-3: var(--heatmap-l4); /* Highest intensity */
 }
 
 .container {
@@ -91,5 +91,5 @@
   width: var(--cell-size);
   height: var(--cell-size);
   border-radius: 2px;
-  background-color: var(--level-0, #1A2332); /* Use var with fallback */
+  background-color: var(--level-0); /* Use var with fallback */
 }
