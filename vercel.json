@@ -1,9 +1,8 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "npm run build",
+  "buildCommand": "./vercel-build.sh",
   "env": {
     "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
-    "PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING": "1",
-    "PRISMA_SKIP_POSTINSTALL_GENERATE": "true"
+    "PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING": "1"
   }
 }
