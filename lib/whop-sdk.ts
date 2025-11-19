@@ -1,5 +1,4 @@
 import { Whop } from "@whop/sdk";
-
 export const whopsdk = new Whop({
 	appID: process.env.NEXT_PUBLIC_WHOP_APP_ID || 'app_test',
 	apiKey: process.env.WHOP_API_KEY || 'test-api-key', // Provide fallback for tests
