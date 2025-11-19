@@ -1,11 +1,14 @@
 /* Based on design/logflow.json */
 .modalBackdrop {
   position: fixed;
-  top: 0; /* Keep top 0 for animation start */
+  top: 5vh; /* Start 5% from top */
   left: 0;
   width: 100vw;
-  height: 100vh; /* Full height for animation */
+  height: 95vh; /* 95% height */
   background-color: #0f1620; /* Full page background */
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: flex-end; /* Align content to bottom for slide-up */
@@ -19,8 +22,8 @@
   border-radius: 0; /* No border radius for full page */
   width: 100%;
   max-width: 100%;
-  height: 95vh; /* Take up 95% of viewport height */
-  max-height: 95vh; /* Ensure it doesn't exceed 95% */
+  height: 100%; /* Fill the 90vh container */
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -31,14 +34,14 @@
 
 .closeButton {
   position: absolute;
-  top: 24px;
-  left: 24px;
+  top: 16px;
+  left: 16px;
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.92);
   cursor: pointer;
-  width: 48px; /* Set fixed size */
-  height: 48px; /* Set fixed size */
+  width: 36px; /* Smaller fixed size */
+  height: 36px; /* Smaller fixed size */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,15 +72,33 @@
   color: rgba(255, 255, 255, 0.92);
 }
 
+.selectionScreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+  height: 100%;
+  padding: 24px;
+  position: relative; /* For absolute positioning of dots */
+}
+
+.selectionDots {
+  position: absolute;
+  bottom: 48px; /* Position from bottom */
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .button {
   height: 64px;
   padding: 0 36px;
   font-size: 18px;
   font-weight: 600;
-  background-color: #12161b;
-  border: 0;
+  background: rgba(255, 255, 255, 0.05); /* Frosted UI background */
+  backdrop-filter: blur(12px); /* Blur effect */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
   border-radius: 28px;
-  box-shadow: 0 8px 20px rgba(6, 10, 17, 0.55);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* Soft shadow */
   color: rgba(255, 255, 255, 0.92);
   width: 92%;
   cursor: pointer;

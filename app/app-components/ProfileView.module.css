@@ -2,11 +2,14 @@
 
 .container {
   position: fixed;
-  top: 0; /* Keep top 0 for animation start */
+  top: 5vh; /* Start 5% from top */
   left: 0;
   width: 100vw;
-  height: 100vh; /* Full height for animation */
+  height: 95vh; /* 95% height */
   background-color: #0f1419;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -21,14 +24,14 @@
 
 .closeButton {
   position: absolute;
-  top: 24px;
-  left: 24px;
+  top: 16px;
+  left: 16px;
   background: none;
   border: none;
   color: #ffffff;
   cursor: pointer;
-  width: 48px; /* Set fixed size */
-  height: 48px; /* Set fixed size */
+  width: 36px; /* Smaller fixed size */
+  height: 36px; /* Smaller fixed size */
   display: flex;
   align-items: center;
   justify-content: center;

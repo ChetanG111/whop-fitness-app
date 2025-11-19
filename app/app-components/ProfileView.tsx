@@ -24,14 +24,14 @@ const ProfileView = ({ onClose, initialName = '', initialGoals = '' }: ProfileVi
       initial={{ y: "100%" }}
       animate={{ y: 0 }}
       exit={{ y: "100%" }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
+      transition={{ duration: 0.6, ease: [0.7, 0, 0.3, 1] }}
     >
       <motion.button
         className={styles.closeButton}
         onClick={onClose}
         aria-label="Close"
-        whileHover={{ scale: 1.1, rotate: 90 }}
-        whileTap={{ scale: 0.9, rotate: 0 }}
+        whileHover={{ scale: 1.05, opacity: 0.8 }}
+        whileTap={{ scale: 0.9, opacity: 0.7 }}
       >
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
