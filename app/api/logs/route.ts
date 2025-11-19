@@ -14,6 +14,9 @@ import { CheckinType } from '@prisma/client';
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('--- NEW REQUEST ---');
+    console.log('Request Headers:', JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
+
     let whopUserId: string | null = null;
     let userName: string = 'Test User'; // Default name for new users
 
@@ -21,6 +24,7 @@ export async function POST(request: NextRequest) {
       whopUserId = request.headers.get('X-Test-User-Id');
     } else {
       const userId = request.headers.get('x-whop-user-id');
+      console.log('x-whop-user-id:', userId);
       if (userId) {
         try {
           const user: any = await whopsdk.users.retrieve(userId);
