@@ -11,6 +11,7 @@ vi.mock('@/lib/db-helpers', () => ({
   createCheckin: vi.fn(),
   updateTodayStats: vi.fn(),
   getUserByWhopId: vi.fn(),
+  getOrCreateUser: vi.fn(),
 }));
 
 // Mock whop-sdk
@@ -37,7 +38,7 @@ describe('POST /api/checkin/rest', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(dbHelpers, 'getUserByWhopId').mockResolvedValue(MOCK_USER as any);
+    vi.spyOn(dbHelpers, 'getOrCreateUser').mockResolvedValue(MOCK_USER as any);
     vi.spyOn(dbHelpers, 'getTodayCheckin').mockResolvedValue(null);
     vi.spyOn(dbHelpers, 'createCheckin').mockImplementation(async (data) => ({
       id: 'checkin-id',
@@ -88,7 +89,7 @@ describe('POST /api/checkin/rest', () => {
     expect(dbHelpers.updateTodayStats).toHaveBeenCalled();
   });
 
-  it('should return 400 if whopUserId is missing', async () => {
+  it('should return 401 if whopUserId is missing', async () => {
     const request = new NextRequest('http://localhost/api/checkin/rest', {
       method: 'POST',
       headers: {
@@ -100,30 +101,11 @@ describe('POST /api/checkin/rest', () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data.message).toBe('User ID not found. Provide X-Test-User-Id for testing.');
+    expect(response.status).toBe(401);
+    expect(data.message).toBe('Unauthorized: missing user id');
     expect(dbHelpers.createCheckin).not.toHaveBeenCalled();
   });
 
-  it('should return 404 if user is not found', async () => {
-    vi.spyOn(dbHelpers, 'getUserByWhopId').mockResolvedValue(null);
-
-    const request = new NextRequest('http://localhost/api/checkin/rest', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Test-User-Id': MOCK_USER.whopUserId,
-      },
-      body: JSON.stringify({ note: 'My rest day' }),
-    });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(404);
-    expect(data.message).toBe('User not found. Please initialize user first.');
-    expect(dbHelpers.createCheckin).not.toHaveBeenCalled();
-  });
 
   it('should return 409 if user has already checked in today', async () => {
     vi.spyOn(dbHelpers, 'getTodayCheckin').mockResolvedValue(MOCK_CHECKIN as any);
