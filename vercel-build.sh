@@ -1,25 +1,32 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-# generate prisma client and list files (diagnostic)
+echo "=== PRISMA GENERATE ==="
 npx prisma generate
+
 echo "=== LIST node_modules/.prisma/client ==="
 ls -la node_modules/.prisma/client || true
 echo "=== LIST node_modules/@prisma/client ==="
 ls -la node_modules/@prisma/client || true
 
-# build next
+echo "=== BUILD NEXT ==="
 next build
 
-# copy prisma client and @prisma client into every serverless function folder so Vercel includes the native engine
-echo "=== COPYING prisma client into functions ==="
+echo "=== COPYING prisma client into each function bundle ==="
 for f in .vercel/output/functions/*; do
+  # server functions live at $f/node
   if [ -d "$f/node" ]; then
+    echo ">>> processing $f"
     mkdir -p "$f/node/node_modules/.prisma"
     mkdir -p "$f/node/node_modules/@prisma"
-    cp -r node_modules/.prisma/client "$f/node/node_modules/.prisma/client" || true
-    cp -r node_modules/@prisma/client "$f/node/node_modules/@prisma/client" || true
-    echo "copied to $f"
+    cp -a node_modules/.prisma/client "$f/node/node_modules/.prisma/client" || true
+    cp -a node_modules/@prisma/client "$f/node/node_modules/@prisma/client" || true
+
+    echo ">>> ls for $f/node/node_modules/.prisma/client"
+    ls -la "$f/node/node_modules/.prisma/client" || true
+
+    echo ">>> ls for $f/node/node_modules/@prisma/client/runtime"
+    ls -la "$f/node/node_modules/@prisma/client/runtime" || true
   fi
 done
 
