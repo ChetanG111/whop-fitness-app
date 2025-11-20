@@ -3,6 +3,9 @@ import type { Payment } from "@whop/sdk/resources.js";
 import type { NextRequest } from "next/server";
 import { whopsdk } from "@/lib/whop-sdk";
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest): Promise<Response> {
 	// Validate the webhook to ensure it's from Whop
 	const requestBodyText = await request.text();

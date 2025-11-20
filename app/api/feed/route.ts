@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getPublicFeedCheckins } from '@/lib/db-helpers';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 /**
  * GET /api/feed
  * 

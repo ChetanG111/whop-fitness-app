@@ -2,6 +2,9 @@ import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { updateTodayStats, getOrCreateUser, getUserCheckins } from '@/lib/db-helpers';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 /**
  * GET /api/checkins
  * 

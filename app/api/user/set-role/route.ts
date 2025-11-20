@@ -3,6 +3,9 @@ import type { NextRequest } from 'next/server';
 import { updateUserRole } from '@/lib/db-helpers';
 import { UserRole } from '@prisma/client';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 /**
  * POST /api/user/set-role
  * 

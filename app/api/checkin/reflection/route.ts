@@ -4,6 +4,9 @@ import { getTodayCheckin, createCheckin, getOrCreateUser } from '@/lib/db-helper
 import { CheckinType } from '@prisma/client';
 import { sanitize } from '@/lib/sanitize';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 /**
  * POST /api/checkin/reflection
  * 

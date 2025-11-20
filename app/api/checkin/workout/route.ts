@@ -4,6 +4,9 @@ import { getTodayCheckin, createCheckin, updateTodayStats, getOrCreateUser } fro
 import { CheckinType } from '@prisma/client';
 import { sanitize } from '@/lib/sanitize';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 /**
  * POST /api/checkin/workout
  * 

@@ -4,6 +4,9 @@ import { getUserByWhopId, getUserCheckins } from '@/lib/db-helpers';
 import { whopsdk } from '@/lib/whop-sdk';
 import { UserRole } from '@prisma/client';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 /**
  * GET /api/coach/member-calendar
  * 

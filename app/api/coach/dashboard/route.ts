@@ -5,6 +5,9 @@ import { whopsdk } from '@/lib/whop-sdk';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 /**
  * GET /api/coach/dashboard
  * 

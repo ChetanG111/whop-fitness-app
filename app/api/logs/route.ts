@@ -4,6 +4,9 @@ import { getTodayCheckin, createCheckin, updateTodayStats, getUserByWhopId } fro
 import { whopsdk } from '@/lib/whop-sdk';
 import { CheckinType } from '@prisma/client';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 /**
  * POST /api/logs
  * 

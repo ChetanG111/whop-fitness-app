@@ -3,6 +3,9 @@ import type { NextRequest } from 'next/server';
 import { getOrCreateUser } from '@/lib/db-helpers';
 import { whopsdk } from '@/lib/whop-sdk';
 
+// Force Node.js runtime for Prisma compatibility
+export const runtime = 'nodejs';
+
 /**
  * GET /api/user/init
  * 
