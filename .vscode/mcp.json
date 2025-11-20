@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"my-mcp-server-b362260e": {
+			"url": "https://docs.whop.com/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}

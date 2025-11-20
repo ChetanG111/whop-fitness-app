@@ -1,11 +1,8 @@
-import { withWhopAppConfig } from "@whop/react/next";
+import type { NextConfig } from "next";
+import { withWhopAppConfig } from "@whop/react/next.config";
 
-const nextConfig = {
+const nextConfig: NextConfig = {
   reactStrictMode: true,
-  experimental: {
-    // Explicitly prefer Node.js runtime for server actions/API routes where possible
-    // though app/api/layout.tsx should handle the specific API routes.
-  },
 };
 
 export default withWhopAppConfig(nextConfig);
