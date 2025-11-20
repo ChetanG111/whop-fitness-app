@@ -1,3 +1,4 @@
 #!/bin/bash
-prisma generate
+npx prisma generate
+ls -la node_modules/.prisma/client || true
 next build
