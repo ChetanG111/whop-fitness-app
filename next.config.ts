@@ -1,7 +1,11 @@
-/** TEMPORARY DEBUG: removed withWhopAppConfig wrapper to test runtime override */
+import { withWhopAppConfig } from "@whop/react/next";
+
 const nextConfig = {
-  // Minimal, valid config for testing
   reactStrictMode: true,
+  experimental: {
+    // Explicitly prefer Node.js runtime for server actions/API routes where possible
+    // though app/api/layout.tsx should handle the specific API routes.
+  },
 };
 
-export default nextConfig;
+export default withWhopAppConfig(nextConfig);
