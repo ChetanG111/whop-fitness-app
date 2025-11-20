@@ -1,11 +1,10 @@
-import { withWhopAppConfig } from "@whop/react/next.config";
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  images: {
-    remotePatterns: [{ hostname: "**" }],
+/** TEMPORARY DEBUG: removed withWhopAppConfig wrapper to test runtime override */
+const nextConfig = {
+  // keep any small flags you actually need — keep this minimal for the test
+  experimental: {
+    optimizePackageImports: true,
+    serverActions: true,
   },
 };
 
-export default withWhopAppConfig(nextConfig);
+export default nextConfig;
