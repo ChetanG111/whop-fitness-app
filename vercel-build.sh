@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Ensure NEXT_PUBLIC_WHOP_APP_ID is set for build (required by Whop SDK)
+export NEXT_PUBLIC_WHOP_APP_ID="${NEXT_PUBLIC_WHOP_APP_ID:-app_test_build}"
+
 echo "=== PRISMA GENERATE ==="
 npx prisma generate
 
