@@ -14,19 +14,29 @@ next build
 
 echo "=== COPYING prisma client into each function bundle ==="
 for f in .vercel/output/functions/*; do
-  # server functions live at $f/node
+  # Handle standard Next.js function structure (flat in .func)
+  # or nested structure if present (e.g. other frameworks or configs)
+
+  TARGET_DIR="$f"
+
+  # If 'node' subdirectory exists, use it (legacy/specific structure)
   if [ -d "$f/node" ]; then
-    echo ">>> processing $f"
-    mkdir -p "$f/node/node_modules/.prisma"
-    mkdir -p "$f/node/node_modules/@prisma"
-    cp -a node_modules/.prisma/client "$f/node/node_modules/.prisma/client" || true
-    cp -a node_modules/@prisma/client "$f/node/node_modules/@prisma/client" || true
+    TARGET_DIR="$f/node"
+  fi
 
-    echo ">>> ls for $f/node/node_modules/.prisma/client"
-    ls -la "$f/node/node_modules/.prisma/client" || true
+  if [ -d "$TARGET_DIR" ]; then
+    echo ">>> processing $f -> $TARGET_DIR"
+    mkdir -p "$TARGET_DIR/node_modules/.prisma"
+    mkdir -p "$TARGET_DIR/node_modules/@prisma"
 
-    echo ">>> ls for $f/node/node_modules/@prisma/client/runtime"
-    ls -la "$f/node/node_modules/@prisma/client/runtime" || true
+    # Copy .prisma/client (contains the binary)
+    cp -a node_modules/.prisma/client "$TARGET_DIR/node_modules/.prisma/client" || true
+
+    # Copy @prisma/client (contains the JS client)
+    cp -a node_modules/@prisma/client "$TARGET_DIR/node_modules/@prisma/client" || true
+
+    echo ">>> ls for $TARGET_DIR/node_modules/.prisma/client"
+    ls -la "$TARGET_DIR/node_modules/.prisma/client" || true
   fi
 done
 
