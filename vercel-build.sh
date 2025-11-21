@@ -7,10 +7,12 @@ export NEXT_PUBLIC_WHOP_APP_ID="${NEXT_PUBLIC_WHOP_APP_ID:-app_test_build}"
 echo "=== PRISMA GENERATE ==="
 npx prisma generate
 
-echo "=== LIST node_modules/.prisma/client ==="
-ls -la node_modules/.prisma/client || true
-echo "=== LIST node_modules/@prisma/client ==="
-ls -la node_modules/@prisma/client || true
+echo "=== VERIFY SOURCE BINARIES ==="
+if [ ! -d "node_modules/.prisma/client" ]; then
+  echo "ERROR: node_modules/.prisma/client does not exist!"
+  exit 1
+fi
+ls -la node_modules/.prisma/client
 
 echo "=== BUILD NEXT ==="
 next build
@@ -29,17 +31,22 @@ for f in .vercel/output/functions/*; do
 
   if [ -d "$TARGET_DIR" ]; then
     echo ">>> processing $f -> $TARGET_DIR"
+
+    # Create parent directories
     mkdir -p "$TARGET_DIR/node_modules/.prisma"
     mkdir -p "$TARGET_DIR/node_modules/@prisma"
 
     # Copy .prisma/client (contains the binary)
-    cp -a node_modules/.prisma/client "$TARGET_DIR/node_modules/.prisma/client" || true
+    # We remove the destination first to ensure a clean copy if it exists
+    rm -rf "$TARGET_DIR/node_modules/.prisma/client"
+    cp -R node_modules/.prisma/client "$TARGET_DIR/node_modules/.prisma/"
 
     # Copy @prisma/client (contains the JS client)
-    cp -a node_modules/@prisma/client "$TARGET_DIR/node_modules/@prisma/client" || true
+    rm -rf "$TARGET_DIR/node_modules/@prisma/client"
+    cp -R node_modules/@prisma/client "$TARGET_DIR/node_modules/@prisma/"
 
-    echo ">>> ls for $TARGET_DIR/node_modules/.prisma/client"
-    ls -la "$TARGET_DIR/node_modules/.prisma/client" || true
+    echo ">>> Verifying copy for $TARGET_DIR"
+    ls -la "$TARGET_DIR/node_modules/.prisma/client"
   fi
 done
 
